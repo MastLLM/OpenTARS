@@ -9,7 +9,7 @@
 Ask in your own words. openTARS opens programs, clicks buttons, types, finds files, reads the screen and runs commands.<br>
 Local by default, free and open source, with an AI trained just for it.
 
-[![Version 5.3 Tesseract](https://img.shields.io/badge/version-5.3%20Tesseract-5FD97A?style=flat-square)](#install)
+[![Version 5.3.5 Tesseract](https://img.shields.io/badge/version-5.3.5%20Tesseract-5FD97A?style=flat-square)](#install)
 [![Official AI: Gargantua 2.5](https://img.shields.io/badge/official%20AI-Gargantua%202.5-5FD97A?style=flat-square)](#gargantua-an-ai-made-for-this)
 [![MIT License](https://img.shields.io/badge/license-MIT-5FD97A?style=flat-square)](LICENSE)
 [![Linux, Windows, macOS](https://img.shields.io/badge/runs%20on-Linux%20%C2%B7%20Windows%20%C2%B7%20macOS-1A2446?style=flat-square)](#where-it-runs)
