@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Contact us</title><script src="base.js"></script></head>
+<body>
+<h1>Contact us</h1>
+<label>Name <input id="nome" aria-label="Name"></label><br>
+<label>Email <input id="email" aria-label="Email"></label><br>
+<label>Topic <select id="tema" aria-label="Topic"><option>General</option><option>Support</option><option>Sales</option><option>Billing</option></select></label><br>
+<label>Message <textarea id="msg" aria-label="Message"></textarea></label><br>
+<label><input type="checkbox" id="news" onchange="ev('newsletter',this.checked?1:0)"> Subscribe to the newsletter</label><br>
+<label><input type="checkbox" id="termos" onchange="ev('terms',this.checked?1:0)"> I accept the terms</label><br>
+<button onclick="enviar()">Submit</button>
+<p id="ok" hidden>Thanks! We got your message.</p>
+<script>
+function enviar() {
+  ev("submit", [$("nome").value, $("email").value, $("tema").value, $("msg").value, $("news").checked ? 1 : 0, $("termos").checked ? 1 : 0].join(" | "));
+  $("ok").hidden = false;
+}
+</script>
+</body></html>

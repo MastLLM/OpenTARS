@@ -161,7 +161,7 @@ if SESSAO_GRAFICA == "wayland" and os.environ.get("TARS_YDOTOOL", "1") not in ("
 # CONFIGURAÇÃO
 # ============================================================
 
-VERSAO = "5.3"
+VERSAO = "5.3.5"
 # 3.0 Miller: o classificador Murph e o modo AUTO.
 # 4.0 Endurance: o Gargantua (IA oficial); Endurance Neo: aviso de versão nova, tarefas longas.
 # 4.5 Endurance: o Cooper (visão da tela), WSL e Linux sem interface gráfica.
@@ -176,7 +176,7 @@ CODINOME = "Tesseract"
 VERSAO_EXIBIDA = f"{VERSAO} {CODINOME}"
 # Endurance Neo: sobe a cada pacote publicado (AAAAMMDDNN). O aviso de versão
 # nova compara com a REVISAO do tars.py do GitHub (tars_atualizacao.py).
-REVISAO = 2026112201
+REVISAO = 2026112202
 
 # Endereço do servidor Ollama — respeita a variável de ambiente padrão
 # do próprio Ollama (OLLAMA_HOST), pra funcionar sem editar o código
@@ -225,10 +225,13 @@ def _normalizar_ollama_host(valor):
 
 
 OLLAMA_HOST = _normalizar_ollama_host(os.environ.get("OLLAMA_HOST"))
-if not os.environ.get("OLLAMA_HOST"):   # 14/11: o motor é sempre o llama.cpp (o Ollama saiu); TARS_MOTOR=ollama é só para desenvolvimento
+if not os.environ.get("OLLAMA_HOST"):   # 5.3.5: o motor é o que a pessoa escolheu em Avançado (llama.cpp, Ollama ou Colibri); trocar pede reiniciar
     try:
         import tars_motor_local
-        if tars_motor_local.escolhido() == "llamacpp":
+        if tars_motor_local.escolhido() == "ollama":
+            import tars_motores
+            OLLAMA_HOST = tars_motores.garantir_ollama() or tars_motores.OLLAMA_URL
+        else:
             # o endereço do motor mesmo que ele ainda não esteja de pé (primeiro uso, antes de baixar): quem sobe o motor depois
             # (primeiro uso, garantir()) usa a mesma porta, e o app não fica apontando para um Ollama que não existe até reiniciar
             OLLAMA_HOST = tars_motor_local.garantir() or tars_motor_local.URL
@@ -408,6 +411,7 @@ PARTES_NUCLEO = (
     "anexos",
     "memoria",
     "rotinas",
+    "contrato_gen4",
     "utilidades",
     "gargantua",
     "codigo",

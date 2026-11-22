@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>TARS Store</title><script src="base.js"></script></head>
+<body>
+<h1>TARS Store</h1>
+<label>Search products <input id="q" aria-label="Search products"></label> <button onclick="buscar()">Search</button>
+<p>Cart: <span id="carrinho">0</span> item(s) — Total: $<span id="total">0</span></p>
+<ul id="lista"></ul>
+<button onclick="ev('checkout');mostrar('pagar',true)">Checkout</button>
+<section id="pagar" hidden>
+  <h2>Checkout</h2>
+  <label>Shipping address <input id="end" aria-label="Shipping address"></label>
+  <button onclick="ev('order', $('end').value + ' | ' + itens.join(','));$('ok').hidden=false">Place order</button>
+  <p id="ok" hidden>Order placed. Thank you!</p>
+</section>
+<script>
+const P = [["Wireless Headphones", 59], ["Mechanical Keyboard", 45], ["USB Mouse", 25], ["27-inch Monitor", 199], ["Laptop Stand", 32], ["Webcam HD", 49]];
+let itens = [], total = 0;
+function desenhar(f) {
+  $("lista").innerHTML = "";
+  P.filter(p => !f || p[0].toLowerCase().includes(f.toLowerCase())).forEach(p => {
+    const li = document.createElement("li");
+    li.textContent = p[0] + " — $" + p[1] + " ";
+    const b = document.createElement("button");
+    b.textContent = "Add to cart"; b.setAttribute("aria-label", "Add " + p[0] + " to cart");
+    b.onclick = () => { itens.push(p[0]); total += p[1]; $("carrinho").textContent = itens.length; $("total").textContent = total; ev("add", p[0]); };
+    li.appendChild(b); $("lista").appendChild(li);
+  });
+}
+function buscar() { ev("search", $("q").value); desenhar($("q").value); }
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") buscar(); });
+desenhar("");
+</script>
+</body></html>

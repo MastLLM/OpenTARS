@@ -1,5 +1,5 @@
 """5.3 (F4): o que o assistente resolve sem o modelo (tars_atalhos). Memória de verdade, comandos de verdade numa casa temporária,
-busca desligada (a pergunta sobre o mundo volta para o modelo)."""
+perguntas sobre o mundo nunca saem daqui (vão ao modelo com a busca)."""
 import os
 import subprocess
 import sys
@@ -73,3 +73,4 @@ assert r("quem escreveu Grande Sertão: Veredas?", core) is None, "busca desliga
 assert r("me conta uma piada", core) is None and r("abre o firefox", core) is None
 print("OK: o que não é de regra segue para o modelo")
 print("TUDO OK.")
+

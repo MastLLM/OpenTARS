@@ -288,7 +288,7 @@ def obter_sessao(modelo=None):
     if not conversa or conversa[0].get("role") != "system":
         conversa.insert(0, {"role": "system", "content": ""})
     # 4.0: o Gargantua recebe o prompt curto com que foi treinado
-    conversa[0]["content"] = sistema_gargantua() if eh_gargantua(modelo) else montar_system_prompt()
+    conversa[0]["content"] = prompt_do_modelo(modelo) if eh_gargantua(modelo) else montar_system_prompt()
     return conversa
 
 

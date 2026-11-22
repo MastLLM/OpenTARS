@@ -176,4 +176,42 @@ finally:
     if antes is not None:
         os.environ["TARS_SEM_AVISO_VERSAO"] = antes
 print("OK: só o modelo oficial cujo arquivo não é o do catálogo é avisado; sem motor ou com o aviso desligado, nada")
+# 21/11 (Enzo): Gargantua novo que substitui o antigo é troca obrigatória: baixa o novo e só então apaga o velho
+G25, G25L = gm.G25, gm.LITE
+assert gm.trocas(["ProjectOpenTARS/Gargantua-2:latest", "projectopentars/gargantua-2:lite", "ProjectOpenTARS/Gargantua:latest",
+                  "ProjectOpenTARS/Gargantua-2.5:latest", "ProjectOpenTARS/Gargantua-Code-Gen2:code", "qwen3:4b"]) == [
+    ("ProjectOpenTARS/Gargantua-2:latest", G25), ("projectopentars/gargantua-2:lite", G25L), ("ProjectOpenTARS/Gargantua:latest", G25)]
+assert G25L == "ProjectOpenTARS/Gargantua-2.5:lite" and gm.trocas(["ProjectOpenTARS/Gargantua-2.5:lite", "ProjectOpenTARS/Gargantua-2.5:latest"]) == []  # 22/11: sem Gen 4, o Lite Gen 3 fica
+assert gm.trocas(["ProjectOpenTARS/Gargantua-2:latest"], fraca=True) == [("ProjectOpenTARS/Gargantua-2:latest", G25L)]
+apagados, baixados = [], []
+
+
+def apagar_falso(pedido, timeout=None):
+    apagados.append(json.loads(pedido.data)["model"])
+    return Resposta(b"{}")
+
+
+r = gm.trocar([("ProjectOpenTARS/Gargantua-2:latest", G25), ("ProjectOpenTARS/Gargantua:latest", G25), (G25L, G25L)], "http://x",
+              lambda nome: baixados.append(nome) or (True, ""), apagar_falso)
+assert baixados == [G25, G25L] and apagados == ["ProjectOpenTARS/Gargantua-2:latest", "ProjectOpenTARS/Gargantua:latest"], (baixados, apagados)
+assert all(not e for *_, e in r)
+apagados.clear()
+r = gm.trocar([("ProjectOpenTARS/Gargantua-2:latest", G25)], "http://x", lambda nome: (False, "sem rede"), apagar_falso)
+assert apagados == [] and r == [("ProjectOpenTARS/Gargantua-2:latest", G25, "sem rede")], "baixar falhou: o velho fica"
+print("OK: troca obrigatória baixa o substituto, apaga o aposentado só depois, e com erro no download o velho fica")
+
+import tempfile  # noqa: E402
+from pathlib import Path  # noqa: E402
+pasta = Path(tempfile.mkdtemp())
+antes_pasta = tars_motor_local.pasta_modelos
+tars_motor_local.pasta_modelos = lambda: pasta
+usado = CAT[G25]["gguf"][0]
+for nome in (usado, usado + ".sha256", "gargantua-2.0-velho.gguf", "gargantua-2.0-velho.gguf.sha256", "gargantua-novo.gguf.parcial", "outro.gguf"):
+    (pasta / nome).write_text("x")
+try:
+    assert sorted(tars_motor_local.limpar_orfaos()) == ["gargantua-2.0-velho.gguf", "gargantua-2.0-velho.gguf.sha256"]
+    assert sorted(p.name for p in pasta.iterdir()) == sorted([usado, usado + ".sha256", "gargantua-novo.gguf.parcial", "outro.gguf"])
+finally:
+    tars_motor_local.pasta_modelos = antes_pasta
+print("OK: no llama.cpp, os arquivos de Gargantua que nenhum modelo usa saem; download em curso e modelo de fora ficam")
 print("test_gerenciar_modelos: TUDO OK.")

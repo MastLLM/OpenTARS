@@ -13,6 +13,10 @@
 #ifndef Pacote
   #define Pacote "..\..\..\dist\pacote\openTARS"
 #endif
+#ifndef Versao4
+#define Versao4 Versao + ".0.0"
+#endif
+
 [Setup]
 ; o mesmo AppId do setup.exe de antes: quem instalou por ele recebe este por cima, e o openTARS aparece uma vez só em Aplicativos
 AppId={{C6BAED4F-7BE2-421A-A5D8-3516502824C6}
@@ -23,9 +27,9 @@ AppPublisher=MastLLM
 AppPublisherURL=https://mastllm.github.io/OpenTARS/
 ; metadados que o Windows mostra em Propriedades > Detalhes e que o Defender/SmartScreen leem: instalador sem editora,
 ; sem descrição e sem versão pontua pior na reputação do que um que se identifica
-; versão de quatro partes nos metadados do .exe ("5.3" vira 5.3.0.0)
-VersionInfoVersion={#Versao}.0.0
-VersionInfoProductVersion={#Versao}.0.0
+; versão de quatro partes nos metadados do .exe ("5.3" vira 5.3.0.0, "5.3.5" vira 5.3.5.0): o CI passa /DVersao4
+VersionInfoVersion={#Versao4}
+VersionInfoProductVersion={#Versao4}
 VersionInfoCompany=MastLLM
 VersionInfoDescription=openTARS Setup
 VersionInfoProductName=openTARS

@@ -1,3 +1,4 @@
+import re
 """Clique pelo NOME, com a calculadora do GNOME de verdade.
 
 A IA pede click_element("7"), ("+"), ("2"), ("=") e recebe de volta o que
@@ -39,7 +40,7 @@ try:
     # 1. O que dá pra clicar e o que a janela mostra
     r = tars.executar_ferramenta("list_elements", {"window": "calculator"})
     assert r["sucesso"], r
-    botoes = r["elementos"]["button"]
+    botoes = [re.sub(r"^\[\d+\] ", "", b) for b in r["elementos"]["button"]]  # tira o número [N]
     assert {"7", "2", "+", "=", "C"} <= set(botoes), botoes
     print(f"OK: list_elements vê {len(botoes)} botões da calculadora ({', '.join(botoes[:6])}...)")
 
@@ -76,7 +77,7 @@ try:
 
     # 6. O que a IA recebe: JSON com chaves em inglês
     ia = tars._para_ia(tars.executar_ferramenta("list_elements", {"window": "calculator", "filter": "="}))
-    assert ia["success"] and ia["elements"] == {"button": ["="]} and "texts" in ia, ia
+    assert ia["success"] and ia["elements"] == {"button": ["[1] ="]} and "texts" in ia, ia
     print("OK: resultado vai pra IA em inglês (success, elements, texts), com filtro")
 finally:
     calc.terminate()

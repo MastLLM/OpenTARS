@@ -476,6 +476,17 @@ def cabe(gb, livre_gb):
 
 
 # 26/10 (pedido do Enzo): os modelos que combinam com o computador
+def grupos():
+    """5.3.5: cada motor tem a sua biblioteca. O llama.cpp e o Ollama usam GRUPOS (o Ollama baixa os mesmos nomes do ollama.com e
+    do hf.co); o Colibri, o catálogo dele (tars_motores.catalogo_colibri, guardado em cache depois da primeira leitura)."""
+    import tars_motor_local
+    if tars_motor_local.escolhido() != "colibri":
+        return GRUPOS
+    import tars_motores
+    return (("colibri", tuple((m["id"], m.get("name") or m["id"], float(m.get("download_gb") or 0), ("tools",))
+                              for m in tars_motores.catalogo_colibri() if m.get("kind", "text") == "text")),)
+
+
 GRUPOS_RECOMENDADOS = ("geral", "visao", "codigo")      # um recomendado por grupo
 
 

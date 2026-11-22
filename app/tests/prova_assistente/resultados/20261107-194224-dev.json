@@ -1,0 +1,51 @@
+[
+ {
+  "id": "d32",
+  "categoria": "lembretes",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.1,
+  "respostas": [
+   "Combinado: às 20:12 eu te lembro de tomar água."
+  ],
+  "executados": [],
+  "propostos": [],
+  "ferramentas": []
+ },
+ {
+  "id": "d33",
+  "categoria": "lembretes",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.0,
+  "respostas": [
+   "Timer de 5 minutos ligado: toca às 19:47."
+  ],
+  "executados": [],
+  "propostos": [],
+  "ferramentas": []
+ },
+ {
+  "id": "d36",
+  "categoria": "sistema",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.0,
+  "respostas": [
+   "Não deu certo: amixer: Mixer attach default error: No such file or directory"
+  ],
+  "executados": [
+   "amixer -q set Master 10%+"
+  ],
+  "propostos": [],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"amixer -q set Master 10%+\"}"
+   ]
+  ]
+ }
+]

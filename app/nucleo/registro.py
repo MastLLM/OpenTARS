@@ -86,8 +86,8 @@ def _resumir_para_log(valor):
 # ESTADO
 # ============================================================
 
-modo_modelo = "AUTO"
-modelo_manual = None
+modelo_manual = os.environ.get("TARS_MODELO_MANUAL") or None   # beta e testes: fixa um modelo sem passar pela fila
+modo_modelo = "MANUAL" if modelo_manual else "AUTO"
 modelo_atual = None
 modelos_do_tars = set()   # tudo que o openTARS carregou nesta sessão: ao fechar, só isso é descarregado
 

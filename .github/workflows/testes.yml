@@ -149,7 +149,8 @@ jobs:
         run: |
           choco install innosetup -y --no-progress
           $v = (Select-String -Path app\tars.py -Pattern '^VERSAO = "(.+)"').Matches[0].Groups[1].Value
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DVersao=$v "/DPacote=$PWD\dist\pacote\openTARS" app\empacotamento\windows\opentars.iss
+          $v4 = (($v + ".0.0.0").Split(".")[0..3]) -join "."
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DVersao=$v /DVersao4=$v4 "/DPacote=$PWD\dist\pacote\openTARS" app\empacotamento\windows\opentars.iss
           if (-not (Test-Path app\dist\opentars-setup.exe)) { throw "o setup não saiu" }
           (Get-Item app\dist\opentars-setup.exe).Length / 1MB
       - name: Assinar o setup.exe (só se a conta de assinatura existir)

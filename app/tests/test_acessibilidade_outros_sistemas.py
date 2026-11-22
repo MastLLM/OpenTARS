@@ -42,8 +42,8 @@ try:
     alvo = acess.achar_janela(termos=["calculator"])
     assert alvo and alvo["pid"] == 50, alvo
     lista = acess.listar(alvo)
-    assert lista["elementos"]["button"] == ["Seven", "Plus", "Memory (disabled)"], lista
-    assert lista["elementos"]["text field"] == ["Search"] and "0" in lista["textos"], lista
+    assert lista["elementos"]["button"] == ["[1] Seven", "[2] Plus", "[4] Memory (disabled)"], lista
+    assert lista["elementos"]["text field"] == ["[3] Search"] and "0" in lista["textos"], lista
     r = acess.clicar(alvo, "seven")
     assert r["sucesso"] and sete.clicado == 1 and r["elemento"] == "button 'Seven'" and "7" in r["textos"], r
     assert acess.localizar(alvo, "Plus") == ("button 'Plus'", (10, 20, 30, 40))

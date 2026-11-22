@@ -34,14 +34,16 @@ print("OK: pedido do Ollama vira pedido do llama-server (imagem, ferramentas, op
 assert m._keep_alive(None) == 300 and m._keep_alive(-1) == -1 and m._keep_alive("10m") == 600 and m._keep_alive("0") == 0
 print("OK: keep_alive no formato do Ollama")
 
-# o motor: sempre llama.cpp; a config não troca mais (14/11, o Ollama saiu); só a variável de desenvolvimento TARS_MOTOR=ollama
+# o motor (5.3.5): a chave "motor" da config escolhe; a variável TARS_MOTOR manda sobre ela; valor estranho vira llama.cpp
 import tars_i18n  # noqa: E402
 _antes_env, _antes_cfg = os.environ.pop("TARS_MOTOR", None), tars_i18n._config
 try:
-    tars_i18n._config = {"motor": "ollama"}
-    assert m.escolhido() == "llamacpp", "a chave antiga da config não leva mais ao Ollama"
+    tars_i18n._config = {"motor": "colibri"}
+    assert m.escolhido() == "colibri", "a escolha da pessoa em Avançado vale"
+    tars_i18n._config = {"motor": "qualquer"}
+    assert m.escolhido() == "llamacpp", "valor desconhecido cai no padrão"
     os.environ["TARS_MOTOR"] = "ollama"
-    assert m.escolhido() == "ollama", "a variável de desenvolvimento continua (baterias do Lab)"
+    assert m.escolhido() == "ollama", "a variável de desenvolvimento manda sobre a config (baterias do Lab, beta)"
 finally:
     tars_i18n._config = _antes_cfg
     os.environ.pop("TARS_MOTOR", None)

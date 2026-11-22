@@ -48,6 +48,7 @@ def _pasta():
 def _caminhos():
     tela = os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY") or "sem-tela"
     tela = re.sub(r"[^A-Za-z0-9_.-]", "_", tela)
+    tela += os.environ.get("TARS_INSTANCIA", "")  # o beta tem cadeado e socket próprios: não conversa com o app estável
     pasta = _pasta()
     return pasta / f"opentars-{tela}.sock", pasta / f"opentars-{tela}.lock"
 

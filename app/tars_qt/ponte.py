@@ -180,7 +180,7 @@ class Ponte(QObject):
             n = self.nucleo
             itens = []
             try:
-                catalogo = n.catalogar_modelos()
+                catalogo = n.catalogar_modelos(forcar=True)     # o cache de 60 s escondia o modelo recém-baixado
                 for tag, m in sorted(catalogo.items()):
                     if m["categoria"] == "embedding" or tag in n.MODELOS_AJUDANTES:
                         continue

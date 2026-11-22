@@ -745,6 +745,8 @@ class JanelaPrincipal(QMainWindow):
         l.atualizar.connect(lambda: self.abrir_config("atualizacoes"))
         self.config.versao_achada.connect(self._versao_achada)
         self.config.instalar_atualizacao.connect(self._atualizar_agora)
+        self.config.reiniciar.connect(self._reiniciar)
+        self.config.modelos_mudaram.connect(self._modelo_do_motor_escolhido)   # baixou ou escolheu na página de modelos: vale como escolha
         self.cabecalho.parar.connect(self.parar)
         self.cabecalho.escolher_modelo.connect(self._menu_modelos)
         c = self.compositor
@@ -842,6 +844,9 @@ class JanelaPrincipal(QMainWindow):
 
     def enviar(self, texto=None, por_voz=False):
         if self.ponte.esta_ocupado:
+            return False
+        if tars_i18n.ler_config().get("escolher_modelo"):      # trocou de motor: primeiro escolhe um modelo dele
+            self._pedir_modelo_do_motor()
             return False
         texto = (texto if texto is not None else self.compositor.texto()).strip()
         anexos = self.compositor.anexos()
@@ -1032,6 +1037,9 @@ class JanelaPrincipal(QMainWindow):
 
     def _ao_modelos(self, itens):
         self._modelos = itens
+        if tars_i18n.ler_config().get("escolher_modelo"):          # trocou de motor: avisa já, sem esperar a pessoa tentar falar
+            import tars_motor_local
+            self.faixa.mostrar(t("motor.escolha_modelo", motor=t(f"cfg.av.motor.{tars_motor_local.escolhido()}")))
 
     def _mostrar_modelo_em_uso(self, modelo=None):
         modo, manual = self.ponte.modo_atual()
@@ -1082,6 +1090,25 @@ class JanelaPrincipal(QMainWindow):
     def _escolher_modelo(self, tag):
         self.ponte.escolher_modelo(tag)
         self._mostrar_modelo_em_uso()
+        if tag:
+            self._modelo_do_motor_escolhido()
+
+    def _pedir_modelo_do_motor(self):
+        """Depois de trocar de motor, a escolha antiga não vale (cada motor tem a sua biblioteca): até a pessoa escolher ou
+        baixar um modelo do motor novo, a janela leva para Configurações > Modelos e não envia nada."""
+        import tars_motor_local
+        if not tars_i18n.ler_config().get("escolher_modelo"):
+            return
+        self.faixa.mostrar(t("motor.escolha_modelo", motor=t(f"cfg.av.motor.{tars_motor_local.escolhido()}")))
+        if any(not nuvem for _r, _t, nuvem in self._modelos):
+            self._menu_modelos()           # o motor novo já tem modelo: escolhe ali mesmo, sem ir para a loja
+        else:
+            self.abrir_config("modelos")   # não tem nenhum: só então a loja
+
+    def _modelo_do_motor_escolhido(self, *_):
+        if tars_i18n.ler_config().get("escolher_modelo"):
+            tars_i18n.salvar_config(escolher_modelo=False)
+            self.faixa.hide()
 
     # -- histórico ---------------------------------------------------------------------
     def atualizar_historico(self):
@@ -1415,27 +1442,39 @@ class JanelaPrincipal(QMainWindow):
             if nova:
                 self.depois(lambda: self._versao_achada(nova))
             self._migrar_motor()
+            self._trocar_gargantua_velho()
             self._garantir_lite()
             self._garantir_modelinhos()
-            # 5.2 (F9.5): o Ollama não atualiza modelo sozinho; o Gargantua novo só chega se a pessoa baixar de novo
-            velhos = tars_gerenciar_modelos.desatualizados(self.nucleo.OLLAMA_HOST)
-            if velhos:
-                nomes = ", ".join(n.split("/")[-1] for n in velhos)
-                self.depois(lambda: self.faixa.mostrar(t("modelo.novo", nomes=nomes), t("cfg.gerenciar.atualizar"), "gerenciar"))
-            elif self._falta_gargantua_25():
-                self.depois(lambda: self.faixa.mostrar(t("g25.oferta"), t("g25.ver"), "modelos"))
 
         threading.Thread(target=trabalho, daemon=True).start()
 
-    def _falta_gargantua_25(self):
-        """5.3: quem veio da 5.2 tem o Gargantua 2 (Qwen). O 2.5 (5,3 GB) não baixa sozinho: a faixa oferece, a cada abertura,
-        até ele estar instalado. Máquina fraca fica com o Lite (que o _garantir_lite já traz)."""
-        if os.environ.get("TARS_SEM_ATALHO") == "1" or pu.maquina_fraca():
-            return False
-        nomes = [str(m).lower() for m in pu.modelos_instalados(self.nucleo.OLLAMA_HOST)]
-        tem_25 = any(n.startswith("projectopentars/gargantua-2.5") and not n.endswith(":lite") for n in nomes)
-        tem_2 = any(n.split(":")[0] == "projectopentars/gargantua-2" and not n.endswith(":lite") for n in nomes)
-        return tem_2 and not tem_25
+    def _trocar_gargantua_velho(self):
+        """21/11 (decisão do Enzo): Gargantua novo que substitui o antigo é troca obrigatória, em todos os sistemas e motores:
+        baixa o novo, apaga o velho e, no llama.cpp, os arquivos que sobraram. Roda na thread da busca de atualização."""
+        import tars_motor_local
+        if os.environ.get("TARS_SEM_ATALHO") == "1" or getattr(self, "_trocando", False):      # testes não baixam
+            return
+        host = self.nucleo.OLLAMA_HOST
+        pares = tars_gerenciar_modelos.pendentes(host, fraca=pu.maquina_fraca())
+        if pares:
+            self._trocando = True
+            novos = ", ".join(sorted({n.split("/")[-1] for _, n in pares}))
+            self.depois(lambda: self.faixa.mostrar(t("modelo.trocando", novos=novos)))
+            try:
+                feitos = tars_gerenciar_modelos.trocar(pares, host, lambda nome: pu.baixar_modelo(nome, host))
+            finally:
+                self._trocando = False
+            erros = [(n, e) for _, n, e in feitos if e]
+            if erros:
+                self.depois(lambda: self.faixa.mostrar(t("modelo.troca_erro", novo=erros[0][0].split("/")[-1], erro=erros[0][1])))
+            else:
+                self.depois(lambda: self.faixa.mostrar(t("modelo.trocado", novos=novos)))
+            self.depois(self.ponte.atualizar_modelos)
+        if tars_motor_local.escolhido() == "llamacpp":
+            try:
+                tars_motor_local.limpar_orfaos()
+            except OSError:
+                pass
 
     def _versao_achada(self, nova):
         """O detector (ao abrir, a cada 6 h, ou o "Procurar agora" das Configurações) achou uma versão: o cartão da barra
@@ -1448,7 +1487,7 @@ class JanelaPrincipal(QMainWindow):
         """5.3 (F9): o motor é o llama.cpp. Quem vem da 5.2 recebe o llama-server e os Gargantua que já tinha (o arquivo do
         Ollama é copiado do disco quando o SHA-256 é o mesmo, sem falar com o Ollama; senão vem do Hugging Face)."""
         import tars_motor_local as motor
-        if os.environ.get("TARS_SEM_ATALHO") == "1" or motor.escolhido() == "ollama" or os.environ.get("OLLAMA_HOST") \
+        if os.environ.get("TARS_SEM_ATALHO") == "1" or motor.escolhido() != "llamacpp" or os.environ.get("OLLAMA_HOST") \
                 or motor.pronto() or getattr(self, "_migrando", False):
             return
         nomes = [n for n, f in motor.CATALOGO.items() if motor._blob_do_ollama(f["gguf"][1])] or ["ProjectOpenTARS/Gargantua-2.5:lite"]
@@ -1710,11 +1749,16 @@ class JanelaPrincipal(QMainWindow):
         novo" nunca valia uma atualização. Sobe um processo novo (que espera este soltar a instância única) e encerra este.
         Se a janela estava aberta, o novo abre a janela; senão, volta só para o ícone."""
         comando = list(assistente.comando_residente())
+        pasta_app = Path(__file__).resolve().parent.parent
+        if plataforma.sistema() == "linux" and pasta_app != Path("/usr/share/opentars"):
+            comando = [sys.executable, "-m", "tars_qt", "--residente"]   # rodando da fonte (beta): reabre a fonte, não o instalado
+        if os.environ.get("TARS_LANCADOR"):
+            comando = [os.environ["TARS_LANCADOR"], "--residente"]       # o beta reabre pelo próprio atalho (refaz as variáveis dele)
         if self.isVisible():
             comando = [c for c in comando if c != "--residente"]
         subprocess.Popen([sys.executable, "-c",
                           "import subprocess, sys, time; time.sleep(2.5); subprocess.Popen(sys.argv[1:], start_new_session=True)",
-                          *comando], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                          *comando], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, cwd=str(pasta_app))
         self._sair_de_vez()
 
     def _atualizado_em_disco(self):

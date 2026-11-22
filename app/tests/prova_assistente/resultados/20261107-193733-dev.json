@@ -1,0 +1,100 @@
+[
+ {
+  "id": "d09",
+  "categoria": "ler",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.1,
+  "respostas": [
+   "O maior arquivo de ~/Downloads é curso.mp4 (2.9M)."
+  ],
+  "executados": [
+   "ls -lhS ~/Downloads | grep -v '^[dt]' | head -n 1"
+  ],
+  "propostos": [],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"ls -lhS ~/Downloads | grep -v '^[dt]' | head -n 1\"}"
+   ]
+  ]
+ },
+ {
+  "id": "d10",
+  "categoria": "ler",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.0,
+  "respostas": [
+   "\"error\" appears 4 times in ~/logs/servidor.log."
+  ],
+  "executados": [
+   "grep -ci -- error ~/logs/servidor.log"
+  ],
+  "propostos": [],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"grep -ci -- error ~/logs/servidor.log\"}"
+   ]
+  ]
+ },
+ {
+  "id": "d22",
+  "categoria": "passos",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.0,
+  "respostas": [
+   "Achei 1 em ~/Downloads.\nSão 1."
+  ],
+  "executados": [
+   "find ~/Downloads -iname '*.png' -not -path '*/.*' 2>/dev/null | head -50"
+  ],
+  "propostos": [],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"find ~/Downloads -iname '*.png' -not -path '*/.*' 2>/dev/null | head -50\"}"
+   ]
+  ]
+ },
+ {
+  "id": "d29",
+  "categoria": "mundo",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 1.4,
+  "respostas": [
+   "From theskylive.com: The Sun is 148,281,574 kilometers ( 92,157,597 miles) from Earth, equivalent to 0.99120109 Astronomical Units."
+  ],
+  "executados": [],
+  "propostos": [],
+  "ferramentas": []
+ },
+ {
+  "id": "d35",
+  "categoria": "sistema",
+  "conjunto": "dev",
+  "ok": true,
+  "falhas": [],
+  "segundos": 0.0,
+  "respostas": [
+   "Não deu certo: Command cancelled: it matched a potentially destructive pattern and the user did not confirm it."
+  ],
+  "executados": [],
+  "propostos": [
+   "sudo apt install -y vlc"
+  ],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"sudo apt install -y vlc\"}"
+   ]
+  ]
+ }
+]

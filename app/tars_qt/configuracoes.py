@@ -25,6 +25,7 @@ import tars_contexto
 import tars_email
 import tars_gerenciar_modelos as gm
 import tars_i18n
+import tars_motor_local
 import tars_imagem as imagem_lib
 import tars_integracoes
 import tars_mais_modelos as mm
@@ -119,6 +120,7 @@ class PaginaConfiguracoes(QWidget):
     assistente_mudou = Signal()
     versao_achada = Signal(object)          # a página Atualizações achou uma versão nova: a janela avisa na barra lateral
     instalar_atualizacao = Signal()         # o botão Atualizar da página: a janela baixa, confere e instala
+    reiniciar = Signal()                    # Avançado trocou o motor: a janela abre um processo novo (motor e porta saem ao carregar)
     _executar = Signal(object)
 
     def __init__(self, nucleo, voz, historico, ponte):
@@ -520,6 +522,8 @@ class PModelos(Pagina):
     def __init__(self, cfg):
         super().__init__(t("cfg.modelos.titulo"), t("cfg.modelos.sub"))
         self.cfg = cfg
+        self.pedido = _Msg()               # 21/11: trocou de motor, a página diz que é preciso escolher um modelo dele
+        self.adicionar(self.pedido)
         self.estado = rotulo("", "nota", quebra=True)
         self.estado.hide()
         self.adicionar(self.estado)
@@ -554,7 +558,9 @@ class PModelos(Pagina):
         self.web_v.addWidget(self.web_resultado)
         self.web_secao.hide()
         self.adicionar(self.web_secao)
-        for grupo, itens in mm.GRUPOS:
+        self._colibri = tars_motor_local.escolhido() == "colibri"
+        self._grupos = mm.grupos()
+        for grupo, itens in self._grupos:
             s, v = _secao(t(f"cfg.modelos.g.{grupo}"), t(f"cfg.modelos.g.{grupo}_sub"))
             self._secoes[grupo] = (s, [i[0] for i in itens])
             if grupo in mm.GRUPOS_RECOMENDADOS:             # os que combinam com este computador vêm primeiro
@@ -574,13 +580,13 @@ class PModelos(Pagina):
         self.terminar()
 
     def _filtrar(self, texto=""):
-        todos = [i for _, itens in mm.GRUPOS for i in itens]
+        todos = [i for _, itens in self._grupos for i in itens]
         certos = {i[0] for i in mm.filtrar(todos, texto)}
         for grupo, (secao, tags) in self._secoes.items():
             for tag in tags:
                 self.cartoes[tag].setVisible(tag in certos)
             secao.setVisible(any(tag in certos for tag in tags))
-        self.b_web.setVisible(bool(texto.strip()))
+        self.b_web.setVisible(bool(texto.strip()) and not self._colibri)   # a busca no Hugging Face acha GGUF, que o Colibri não roda
         if not texto.strip():
             self.web_secao.hide()
 
@@ -620,6 +626,8 @@ class PModelos(Pagina):
 
     def ao_abrir(self):
         n = self.cfg.nucleo
+        self.pedido.setText(t("motor.escolha_modelo", motor=t(f"cfg.av.motor.{tars_motor_local.escolhido()}"))
+                            if tars_i18n.ler_config().get("escolher_modelo") else "")
         if hasattr(self, "bonsai"):
             self.bonsai.atualizar()
 
@@ -685,8 +693,7 @@ class PModelos(Pagina):
                           resto=pu.formatar_tempo(p.segundos_restantes(), t))
                 self.cfg.depois(lambda: c.progresso(pct, texto))
             nome, ficha = getattr(c, "_nome", tag), mm.FICHAS.get(tag) or getattr(c, "_ficha", None)
-            if ficha:                                   # modelo da loja: o motor passa a conhecer o arquivo e o SHA-256
-                import tars_motor_local
+            if ficha and tars_motor_local.escolhido() != "colibri":   # modelo da loja: o motor passa a conhecer o arquivo e o SHA-256
                 tars_motor_local.adicionar_da_loja(nome, ficha)
             return pu.baixar_modelo(nome, host, ao_progredir=andamento, cancelado=lambda: self._cancelar)
 
@@ -2430,6 +2437,17 @@ class PAvancado(Pagina):
         self.aviso = _Msg()
         self.adicionar(self.aviso)
 
+        s0, v0 = _secao(t("cfg.av.motor"), t("cfg.av.motor_sub"))      # 5.3.5: llama.cpp, Ollama ou Colibri, cada um com a sua biblioteca
+        self.motor = QComboBox()
+        self.motor.setMaximumWidth(220)
+        for m in tars_motor_local.MOTORES:
+            self.motor.addItem(t(f"cfg.av.motor.{m}"), m)
+        self.motor.currentIndexChanged.connect(self._motor_mudou)
+        v0.addWidget(self.motor)
+        self.motor_msg = _Msg()
+        v0.addWidget(self.motor_msg)
+        self.adicionar(s0)
+
         s, v = _secao(t("cfg.av.temperatura"), t("cfg.av.temperatura_sub"))
         self.temperatura = QComboBox()
         self.temperatura.setMaximumWidth(220)
@@ -2482,13 +2500,58 @@ class PAvancado(Pagina):
             c.setChecked(nome not in a["ferramentas_desligadas"])
         self.aviso.setText("" if modos.dev_ligado() else t("cfg.av.so_pro"))
         self.msg.setText("")
+        self.motor.setCurrentIndex(max(0, self.motor.findData(tars_motor_local.escolhido())))
+        self._motor_mudou()
+
+    def _motor_mudou(self, *_):
+        import tars_motores
+        novo = self.motor.currentData()
+        nome = t(f"cfg.av.motor.{novo}")
+        if novo == tars_motor_local.escolhido():
+            self.motor_msg.setText("")
+        elif tars_motores.binario(novo) is not None:
+            self.motor_msg.setText(t("cfg.av.motor_pronto", motor=nome))
+        elif novo != "llamacpp" and tars_motores.pacote(novo) is None:
+            self.motor_msg.setText(t("cfg.av.motor_sem", motor=nome))
+        else:
+            gb = tars_motores.pacote(novo)[2] if novo != "llamacpp" else 0.1
+            self.motor_msg.setText(t("cfg.av.motor_baixa", motor=nome, gb=mm.tamanho_texto(gb)))
+
+    def _trocar_motor(self):
+        import tars_motores
+        novo = self.motor.currentData()
+        nome = t(f"cfg.av.motor.{novo}")
+        if os.environ.get("TARS_MOTOR"):
+            return self.motor_msg.setText(t("cfg.av.motor_fixo"))
+        self.motor_msg.setText(t("cfg.av.motor_baixando", motor=nome, pct=0) if tars_motores.binario(novo) is None else "")
+
+        def trabalho():
+            if tars_motores.binario(novo) is None:
+                tars_motores.instalar(novo, lambda feito, total: self.cfg.depois(lambda: self.motor_msg.setText(
+                    t("cfg.av.motor_baixando", motor=nome, pct=int(100 * feito / total) if total else 0))))
+            return True
+
+        def pronto(r):
+            if isinstance(r, Exception):
+                return self.motor_msg.setText(t("cfg.baixar_erro", erro=str(r)))
+            # 21/11 (Enzo): trocar de motor reinicia na hora e, ao abrir, obriga a escolher um modelo do motor novo
+            tars_i18n.salvar_config(motor=novo, escolher_modelo=True)
+            self.motor_msg.setText(t("cfg.av.motor_reiniciar", motor=nome))
+            self.msg.setText(t("cfg.av.motor_reiniciar", motor=nome))
+            QTimer.singleShot(1200, self.cfg.reiniciar.emit)
+        self.cfg.em_segundo_plano(trabalho, pronto)
 
     def _salvar(self):
+        """Um botão só grava tudo, o motor junto (antes o motor tinha um botão à parte e o Salvar voltava a escolha dele)."""
+        motor = self.motor.currentData()
         modos.salvar_avancado(temperatura=self.temperatura.currentData(), contexto=self.contexto.currentData(),
                               instrucoes=self.instrucoes.toPlainText(),
                               ferramentas_desligadas=[n for n, c in self.caixas.items() if not c.isChecked()])
         self.ao_abrir()
+        self.motor.setCurrentIndex(max(0, self.motor.findData(motor)))
         self.msg.setText(t("cfg.av.salvo"))
+        if motor != tars_motor_local.escolhido():
+            self._trocar_motor()
 
     def _restaurar(self):
         tars_i18n.salvar_config(avancado={})

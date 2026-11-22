@@ -629,7 +629,7 @@ class MensagemIA(QWidget):
 
     def aprovacao(self, comando):
         self.fim_do_trecho()
-        cartao = self._adicionar(CartaoAprovacao(comando))
+        cartao = self._adicionar(CartaoAprovacao(comando, getattr(comando, "etiqueta", None), getattr(comando, "pergunta", None)))
         if self.etapas is not None:
             self.etapas.esperar_pessoa(True)
             cartao.respondeu.connect(lambda _ok: self.etapas.esperar_pessoa(False))

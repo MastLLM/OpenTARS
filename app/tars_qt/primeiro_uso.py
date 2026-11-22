@@ -332,7 +332,11 @@ class PaginaOllama(Pagina):
             return pu.achar_ollama([pu.endereco_ollama()], tem_comando=False)
         erro = ""
         try:
-            if motor.binario() is None:
+            if motor.escolhido() == "colibri":      # 5.3.5: o Colibri, escolhido em Avançado, sobe atrás do mesmo proxy
+                import tars_motores
+                if tars_motores.binario("colibri") is None:
+                    tars_motores.instalar("colibri")
+            elif motor.binario() is None:
                 motor.instalar_binario()
             endereco = motor.garantir(espera=30)
         except (OSError, ValueError) as e:
@@ -941,10 +945,11 @@ def criar_aplicativo(argv):
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("project-opentars.openTARS")
         except Exception:  # noqa: BLE001
             pass
-    app = QApplication.instance() or QApplication((["opentars"] + list(argv[1:])) if argv else ["opentars"])
+    nome = os.environ.get("TARS_NOME_JANELA") or "opentars"  # o beta usa "opentars-beta": ícone e grupo próprios na barra
+    app = QApplication.instance() or QApplication(([nome] + list(argv[1:])) if argv else [nome])
     # O menu e a barra de tarefas ligam a janela ao ícone pelo nome (WM_CLASS = Opentars, igual ao StartupWMClass do atalho).
-    app.setApplicationName("Opentars")
-    app.setDesktopFileName("opentars")
+    app.setApplicationName(nome.capitalize())
+    app.setDesktopFileName(nome)
     tema.carregar_fontes()
     fonte = app.font()
     fonte.setFamily(tema.FONTE_TEXTO)

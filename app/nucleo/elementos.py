@@ -264,6 +264,9 @@ def listar_elementos(janela=None, filtro=None):
                 + ". Use take_screenshot with window=<app> and click by coordinates."
             ),
         }
+    nota_lista = ""
+    if not alvo["titulo"] and list(r["elementos"]) == ["menu item"]:  # lista suspensa aberta (TARS-World B4: o modelo listava de novo e desistia)
+        nota_lista = " This is an open drop-down list: pick the option now with click_element(name=<option>); do not list again."
     return {
         "sucesso": True,
         "janela": alvo["titulo"],
@@ -271,7 +274,8 @@ def listar_elementos(janela=None, filtro=None):
         "textos": r["textos"],
         "mensagem": (
             f"{r['total']} element(s) in '{alvo['titulo']}'{_nota_aberto(alvo)} (grouped by role) and the texts "
-            "it shows. Press one with click_element(name=...)."
+            "it shows. Press one with click_element(name=\"#N\") using its [N] number (valid until the window changes), or by name."
+            + nota_lista
         ),
     }
 
@@ -300,6 +304,45 @@ def _clicar_pelo_retangulo(alvo, retangulo):
         return False
 
 
+def _dica_outras_janelas(alvo, nome, papel):
+    """Se o elemento está em outra janela aberta, diz qual; senão lista as janelas."""
+    try:
+        outras = [j for j in acess.janelas() if j.get("titulo") and j["titulo"] != alvo["titulo"]]
+        for j in outras:
+            if acess._achar(acess._itens(j), nome, papel):
+                return (f" '{nome}' is in the window '{j['titulo']}' (not the active one): "
+                        f"call click_element again with window='{j['titulo']}'.")
+        if outras:
+            return " Open windows: " + ", ".join(f"'{j['titulo']}'" for j in outras[:6]) + "."
+    except Exception:  # noqa: BLE001
+        pass
+    return ""
+
+
+def _opcoes_da_lista_aberta(alvo):
+    """Nomes dos itens da lista suspensa aberta (janela do mesmo app, fora a que a IA está usando)."""
+    try:
+        nomes = []
+        for j in acess.janelas():
+            if j.get("pid") == alvo.get("pid") and j.get("titulo") != alvo.get("titulo"):
+                nomes += [n for _no, papel, n, _e, _t in acess._itens(j) if n and "menu item" in str(papel)]
+        return nomes[:12]
+    except Exception:  # noqa: BLE001
+        return []
+
+
+def _dica_combos(alvo):
+    """Opção de lista suspensa só existe depois de abrir a lista: medido na TARS-World (B4), o modelo clicava na opção direto."""
+    try:
+        combos = acess.nomes_de_combos(alvo)
+    except Exception:
+        return ""
+    if not combos:
+        return ""
+    return (f" If it is an option of a drop-down list, open the list first with click_element(name='{combos[0]}')"
+            " and then click the option.")
+
+
 def clicar_elemento(nome, janela=None, papel=None):
     """Handler da ferramenta click_element."""
     nome = (nome or "").strip()
@@ -320,10 +363,38 @@ def clicar_elemento(nome, janela=None, papel=None):
         mensagem = f"SUCCESS: clicked {r['elemento']} in '{alvo['titulo']}'{_nota_aberto(alvo)}."
         if textos:
             mensagem += " The window now shows: " + " | ".join(textos[:8])
+        novos, sumiram = r.get("novos") or [], r.get("sumiram") or []
+        if novos:
+            mensagem += " New: " + " | ".join(novos) + "."
+        if sumiram:
+            mensagem += " Gone: " + " | ".join(sumiram) + "."
+        if str(r["elemento"]).startswith("combo box"):
+            # medido na TARS-World: o modelo listava a lista aberta em círculos sem escolher a opção; as opções moram numa janela sem título
+            opcoes = _opcoes_da_lista_aberta(alvo) or list(novos)[:12]
+            if opcoes:
+                mensagem += (f" The list is open. Options: {', '.join(opcoes)}. Choose now with click_element(name='{opcoes[0]}'),"
+                             " replacing the name with the option you want.")
+            elif novos:
+                mensagem += " The list is open: choose the option now with click_element(name=<option>)."
         return {"sucesso": True, "janela": alvo["titulo"], "elemento": r["elemento"],
                 "textos": textos[:8], "mensagem": mensagem}
 
+    if re.fullmatch(r"\s*[#\[]\s*\d+\s*\]?\s*", nome) and not r["achou"]:
+        return {"sucesso": False, "janela": alvo["titulo"],
+                "mensagem": f"ERROR: {nome} is not a valid number (the window changed or list_elements was not called). "
+                            "Call list_elements again and use the new [N]."}
+
     if not r["achou"]:
+        # lista suspensa aberta: as opções moram numa janela sem título, do mesmo app (TARS-World B4)
+        try:
+            for j in acess.janelas():
+                if j.get("pid") == alvo.get("pid") and j.get("titulo") != alvo.get("titulo"):
+                    r2 = acess.clicar(j, nome, papel)
+                    if r2["sucesso"]:
+                        return {"sucesso": True, "janela": alvo["titulo"], "elemento": r2["elemento"], "textos": [],
+                                "mensagem": f"SUCCESS: clicked {r2['elemento']} (in the pop-up list of '{alvo['titulo']}')."}
+        except Exception:  # noqa: BLE001
+            pass
         parecidos = acess.parecidos(alvo, nome)
         if not parecidos and janela and not acess.listar(alvo, None)["total"]:
             _marcar_sem_arvore(janela)
@@ -342,6 +413,8 @@ def clicar_elemento(nome, janela=None, papel=None):
             "mensagem": (
                 f"No element named '{nome}' in '{alvo['titulo']}'."
                 + (f" Some of its elements: {', '.join(parecidos)}." if parecidos else "")
+                + _dica_outras_janelas(alvo, nome, papel)
+                + _dica_combos(alvo)
                 + " Use list_elements to see them all, or take_screenshot to click by coordinates."
             ),
         }
@@ -421,6 +494,11 @@ def escrever_em_elemento(nome, texto, janela=None, enviar=False):
         return resultado
 
     campos = r.get("campos") or []
+    if not (nome or "").strip() and campos:
+        # o modelo esqueceu o 'name': diz o que falta e como repetir (medido na TARS-World: ele desistia aqui)
+        return {"sucesso": False, "janela": alvo["titulo"],
+                "mensagem": (f"ERROR: 'name' is missing. This window has several text fields: {', '.join(campos)}. "
+                             f"Call type_in_element again with name set to one of them, e.g. name='{campos[0]}'.")}
     return {
         "sucesso": False,
         "janela": alvo["titulo"],

@@ -1,0 +1,41 @@
+[
+ {
+  "id": "d01",
+  "categoria": "estado",
+  "conjunto": "dev",
+  "ok": false,
+  "falhas": [
+   "resp"
+  ],
+  "segundos": 4.6,
+  "respostas": [
+   "A memória livre é de **361 MiB**."
+  ],
+  "executados": [
+   "free -h"
+  ],
+  "propostos": [],
+  "ferramentas": [
+   [
+    "execute_terminal",
+    "{\"command\": \"free -h\"}"
+   ]
+  ]
+ },
+ {
+  "id": "d24",
+  "categoria": "mundo",
+  "conjunto": "dev",
+  "ok": false,
+  "falhas": [
+   "resp"
+  ],
+  "segundos": 0.5,
+  "respostas": [
+   "Grande Sertão: Veredas é de Jorge Amado."
+  ],
+  "executados": [],
+  "propostos": [],
+  "ferramentas": []
+ }
+]

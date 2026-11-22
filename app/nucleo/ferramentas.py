@@ -449,7 +449,7 @@ def consertar_chamada(nome, argumentos):
     if antiga:
         nome, argumentos, nota_antiga = antiga
         notas.append(nota_antiga)
-    if nome not in esquemas:
+    if nome not in esquemas and nome not in _DISPATCH_FERRAMENTAS:  # contrato Gen 4: 'type' é ferramenta, não apelido
         chave = (nome or "").strip().lower().replace("-", "_").replace(" ", "_")
         novo = _APELIDOS_FERRAMENTAS.get(chave) or (chave if chave in esquemas else None)
         if not novo:

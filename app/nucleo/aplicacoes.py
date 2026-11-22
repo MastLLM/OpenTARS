@@ -897,6 +897,15 @@ def abrir_aplicativo(app):
         if re.fullmatch(r"(?:o |the )?cooper(?: vision)?", app.lower()):
             dica = (" 'Cooper' is not an application (it was discontinued: Gargantua 2 sees images itself). To look at an "
                     "image file, call take_screenshot with file=<path of the image>.")
+        try:  # a janela pode já estar aberta (app que não está instalado, aberto por fora)
+            alvo = normalizar(app)
+            abertas = [j["titulo"] for j in (listar_janelas_x() or []) if j.get("titulo")]
+            casam = [t for t in abertas if alvo in normalizar(t) or normalizar(t) in alvo] or abertas[:3]
+            if casam:
+                dica += (f" But these windows are already open: {', '.join(repr(t) for t in casam[:3])}. "
+                         "Work in the open window; do not try to open it again.")
+        except Exception:  # noqa: BLE001
+            pass
         return {
             "sucesso": False,
             "acao": "open_application",

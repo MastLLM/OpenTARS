@@ -33,8 +33,6 @@ from pathlib import Path
 
 import tars_plataforma as plataforma
 
-PORTA = int(os.environ.get("TARS_MOTOR_PORTA") or 11435)
-URL = f"http://127.0.0.1:{PORTA}"
 VERSAO_LLAMA = "b12032"           # 01/11/2026: a mesma usada no Space; versão fixa, nada de "a mais nova do dia"
 _GH = f"https://github.com/ggml-org/llama.cpp/releases/download/{VERSAO_LLAMA}/"
 BINARIOS = {   # (sistema, máquina, aceleração): (arquivo, sha256)
@@ -290,6 +288,19 @@ def obter_arquivo(repo, arquivo, sha, ao_progresso=None):
     return destino
 
 
+def limpar_orfaos():
+    """Apaga da pasta os arquivos oficiais (gargantua*) que nenhum modelo do catálogo usa mais: sobra de versão substituída."""
+    recarregar_loja()
+    usados = {a[0] for f in CATALOGO.values() for a in (f["gguf"], f.get("mmproj")) if a}
+    apagados = []
+    for arquivo in pasta_modelos().glob("*gargantua*") if pasta_modelos().is_dir() else []:
+        gguf = arquivo.name.removesuffix(".sha256")
+        if gguf.endswith(".gguf") and gguf not in usados and arquivo.is_file():
+            arquivo.unlink()
+            apagados.append(arquivo.name)
+    return apagados
+
+
 def preparar(nomes, ao_progresso=None):
     """Instala o llama-server e os modelos pedidos. Levanta OSError/ValueError."""
     if binario() is None:
@@ -366,24 +377,58 @@ def remover_da_loja(nome):
 
 def _nome(nome):
     """"ProjectOpenTARS/Gargantua-2" é o mesmo que ":latest", como no Ollama."""
+    if _colibri():                  # os modelos do Colibri não têm etiqueta
+        return nome.removesuffix(":latest") if nome else nome
     return nome if not nome or ":" in nome.split("/")[-1] else nome + ":latest"
 
 
 def instalado(nome):
     nome = _nome(nome)
+    if _colibri():
+        import tars_motores
+        return bool(nome) and nome in tars_motores.instalados_colibri()
     ficha = CATALOGO.get(nome)
     return bool(ficha) and (pasta_modelos() / ficha["gguf"][0]).exists()
 
 
 def instalados():
+    if _colibri():
+        import tars_motores
+        return tars_motores.instalados_colibri()
     recarregar_loja()
     return [n for n in CATALOGO if instalado(n)]
 
 
+MOTORES = ("llamacpp", "ollama", "colibri")
+
+
 def escolhido():
-    """Sempre "llamacpp" para quem usa o app (14/11: o Ollama saiu de tudo). Só a variável de desenvolvimento TARS_MOTOR=ollama
-    (baterias do Lab e modelos de teste locais) aponta o app para um Ollama de verdade; não há chave na interface nem na config."""
-    return "ollama" if (os.environ.get("TARS_MOTOR") or "").strip().lower() == "ollama" else "llamacpp"
+    """O motor que a pessoa escolheu em Configurações > Avançado (chave "motor" da config; 5.3.5). A variável TARS_MOTOR
+    (baterias do Lab, beta) manda sobre a config. Padrão: llama.cpp."""
+    motor = (os.environ.get("TARS_MOTOR") or "").strip().lower()
+    if motor not in MOTORES:
+        try:
+            import tars_i18n
+            motor = str(tars_i18n.ler_config().get("motor") or "")
+        except Exception:  # noqa: BLE001  (config ilegível: vale o padrão)
+            motor = ""
+    return motor if motor in MOTORES else "llamacpp"
+
+
+def _colibri():
+    return escolhido() == "colibri"
+
+
+def _conhecido(nome):
+    """O proxy conhece o modelo: do catálogo do llama.cpp, ou do Colibri quando ele é o motor."""
+    if _colibri():
+        import tars_motores
+        return bool(nome) and (nome in tars_motores.instalados_colibri() or any(m["id"] == nome for m in tars_motores.catalogo_colibri()))
+    return nome in CATALOGO
+
+
+PORTA = int(os.environ.get("TARS_MOTOR_PORTA") or (11436 if _colibri() else 11435))   # o Colibri tem proxy próprio: trocar não briga com o do llama.cpp
+URL = f"http://127.0.0.1:{PORTA}"
 
 
 def pronto():
@@ -406,9 +451,14 @@ def _pedir(url, corpo=None, tempo=900):
 
 class Instancia:
     def __init__(self, nome, visao):
-        ficha = CATALOGO[nome]
         self.nome, self.visao, self.porta = nome, visao, _porta_livre()
         self.ultimo, self.keep_alive = time.time(), KEEP_ALIVE_PADRAO
+        if _colibri():          # o coli serve fala OpenAI como o llama-server: o resto do proxy é o mesmo
+            import tars_motores
+            self._subir(tars_motores.comando_colibri("serve", "--model", str(tars_motores.pasta_modelos_colibri() / nome), "--host", "127.0.0.1",
+                                                     "--port", str(self.porta), "--model-id", nome), "colibri")
+            return
+        ficha = CATALOGO[nome]
         comando = [str(binario()), "-m", str(pasta_modelos() / ficha["gguf"][0]), "--host", "127.0.0.1", "--port", str(self.porta),
                    "-c", str(CONTEXTO), "--jinja", "--parallel", "1", "--no-webui"]
         # sem -ngl: o padrão do b12032 é "auto" com --fit, que põe na placa só as camadas que cabem. O -ngl 99 de antes desligava
@@ -417,13 +467,16 @@ class Instancia:
             comando += ["-ngl", "0"]
         if visao and ficha.get("mmproj"):
             comando += ["--mmproj", str(pasta_modelos() / ficha["mmproj"][0])]
-        registro = open(pasta() / "llama-server.log", "ab")
+        self._subir(comando, "llama-server")
+
+    def _subir(self, comando, quem):
+        registro = open(pasta() / f"{quem}.log", "ab")
         extra = {"creationflags": 0x08000000} if plataforma.sistema() == "windows" else {"start_new_session": True}   # sem janela preta no Windows
         self.processo = subprocess.Popen(comando, stdin=subprocess.DEVNULL, stdout=registro, stderr=registro, **extra)
         limite = time.time() + 300
         while time.time() < limite:
             if self.processo.poll() is not None:
-                raise RuntimeError(f"llama-server stopped with code {self.processo.returncode} (see {pasta() / 'llama-server.log'})")
+                raise RuntimeError(f"{quem} stopped with code {self.processo.returncode} (see {pasta() / (quem + '.log')})")
             try:
                 with _pedir(f"http://127.0.0.1:{self.porta}/health", tempo=2) as r:
                     if json.loads(r.read()).get("status") == "ok":
@@ -431,7 +484,7 @@ class Instancia:
             except (OSError, ValueError):
                 time.sleep(0.3)
         self.parar()
-        raise RuntimeError("llama-server took too long to start")
+        raise RuntimeError(f"{quem} took too long to start")
 
     def parar(self):
         if self.processo.poll() is None:
@@ -447,9 +500,9 @@ class Motor:
         self.instancias, self.trava, self.ultimo_pedido = {}, threading.Lock(), time.time()
 
     def instancia(self, nome, visao=False):
-        if nome not in CATALOGO or not instalado(nome):
+        if not _conhecido(nome) or not instalado(nome):
             raise KeyError(nome)
-        visao = visao and bool(CATALOGO[nome].get("mmproj"))
+        visao = visao and bool(CATALOGO.get(nome, {}).get("mmproj"))
         with self.trava:
             chave = (nome, visao)
             atual = self.instancias.get(chave)
@@ -502,7 +555,7 @@ def _keep_alive(valor):
 
 def _parametros(nome):
     p = {}
-    for linha in CATALOGO[nome]["parameters"].splitlines():
+    for linha in CATALOGO.get(nome, {}).get("parameters", "").splitlines():
         partes = linha.split()
         if len(partes) == 2:
             try:
@@ -580,6 +633,12 @@ def _tem_imagem(corpo):
 # ---------------------------------------------------------------- o servidor com cara de Ollama
 
 def _ficha_tags(nome):
+    if _colibri():
+        import tars_motores
+        caminho = tars_motores.pasta_modelos_colibri() / nome
+        tamanho = sum(f.stat().st_size for f in caminho.glob("*") if f.is_file()) if caminho.is_dir() else 0
+        return {"name": nome, "model": nome, "modified_at": "", "size": tamanho, "digest": "", "capabilities": ["completion", "tools"],
+                "details": {"format": "colibri", "family": "colibri", "families": ["colibri"], "parameter_size": "", "quantization_level": "int4"}}
     ficha = CATALOGO[nome]
     caminho = pasta_modelos() / ficha["gguf"][0]
     tamanho = ficha["gguf"][2] + (ficha["mmproj"][2] if ficha.get("mmproj") else 0)
@@ -646,12 +705,17 @@ def servir():
         def _nao_tem(self, corpo):
             return self._json({"error": f"model '{corpo.get('model') or corpo.get('name')}' not found"}, 404)
 
-        def do_DELETE(self):
-            corpo = self._corpo()
+        def do_DELETE(self, corpo=None):
+            corpo = self._corpo() if corpo is None else corpo      # o POST /api/delete já leu o corpo: ler de novo travava
             nome = _nome(corpo.get("model") or corpo.get("name"))
-            if nome not in CATALOGO:
+            if not _conhecido(nome):
                 return self._nao_tem(corpo)
             motor.descarregar(nome)
+            if _colibri():
+                import tars_motores
+                if nome in tars_motores.instalados_colibri():
+                    shutil.rmtree(tars_motores.pasta_modelos_colibri() / nome)
+                return self._json({})
             ficha = CATALOGO[nome]
             for arquivo in [ficha["gguf"]] + ([ficha["mmproj"]] if ficha.get("mmproj") else []):
                 (pasta_modelos() / arquivo[0]).unlink(missing_ok=True)
@@ -676,19 +740,22 @@ def servir():
             recarregar_loja()
             corpo = self._corpo()
             nome = _nome(corpo.get("model") or corpo.get("name"))
-            if nome not in CATALOGO or (self.path != "/api/pull" and not instalado(nome) and self.path != "/api/delete"):
+            if not _conhecido(nome) or (self.path != "/api/pull" and not instalado(nome) and self.path != "/api/delete"):
                 return self._nao_tem(corpo)
             if self.path == "/api/show":
-                if nome not in CATALOGO or not instalado(nome):
+                if not _conhecido(nome) or not instalado(nome):
                     return self._json({"error": f"model '{nome}' not found"}, 404)
                 ficha = _ficha_tags(nome)
+                if _colibri():
+                    return self._json({"capabilities": ficha["capabilities"], "details": ficha["details"], "parameters": "", "modelfile": "",
+                                       "template": "", "model_info": {"general.architecture": "colibri"}})
                 return self._json({"capabilities": ficha["capabilities"], "details": ficha["details"], "parameters": CATALOGO[nome]["parameters"],
                                    # o hash do arquivo instalado: o aviso de modelo novo (tars_gerenciar_modelos.desatualizados) compara com o ollama.com
                                    "modelfile": f"# {CATALOGO[nome]['gguf'][0]} sha256:{sha_do_arquivo(pasta_modelos() / CATALOGO[nome]['gguf'][0])}", "template": "", "model_info": {"general.architecture": CATALOGO[nome]["family"]}})
             if self.path == "/api/pull":
                 return self._puxar(nome, corpo.get("stream", True))
             if self.path == "/api/delete":
-                return self.do_DELETE()
+                return self.do_DELETE(corpo)
             if self.path == "/api/generate":
                 return self._gerar(nome, corpo)
             if self.path == "/api/chat":
@@ -697,7 +764,7 @@ def servir():
 
         def _gerar(self, nome, corpo):
             ka = _keep_alive(corpo.get("keep_alive"))
-            if nome not in CATALOGO or not instalado(nome):
+            if not _conhecido(nome) or not instalado(nome):
                 return self._json({"error": f"model '{nome}' not found"}, 404)
             if not corpo.get("prompt"):
                 if ka == 0:
@@ -742,7 +809,7 @@ def servir():
             return _final(nome, inicio, mensagem, escolha.get("finish_reason"), logprobs or None)
 
         def _conversar(self, nome, corpo):
-            if nome not in CATALOGO or not instalado(nome):
+            if not _conhecido(nome) or not instalado(nome):
                 return self._json({"error": f"model '{nome}' not found"}, 404)
             if not corpo.get("stream", True):
                 resposta = self._responder(nome, corpo)
@@ -794,6 +861,8 @@ def servir():
             self._fim_linhas()
 
         def _puxar(self, nome, stream):
+            if _colibri():
+                return self._puxar_colibri(nome, stream)
             if nome not in CATALOGO:
                 return self._json({"error": f"pull model manifest: file does not exist ({nome})"}, 404)
             ficha = CATALOGO[nome]
@@ -825,6 +894,23 @@ def servir():
                     avisar({"error": str(e)})
                 else:
                     return self._json({"error": str(e)}, 500)
+            if stream:
+                self._fim_linhas()
+            else:
+                self._json({"status": "success"})
+
+        def _puxar_colibri(self, nome, stream):
+            import tars_motores
+            if stream:
+                self._linhas()
+            avisar = (lambda d: self._linha(d)) if stream else (lambda d: None)
+            try:
+                tars_motores.puxar_colibri(nome, avisar)
+                avisar({"status": "success"})
+            except (OSError, ValueError) as e:
+                if not stream:
+                    return self._json({"error": str(e)}, 500)
+                avisar({"error": str(e)})
             if stream:
                 self._fim_linhas()
             else:
@@ -907,7 +993,11 @@ def garantir(espera=15):
         _trocar_motor_antigo()
         if respondendo(0.5):
             return URL           # não deu para trocar: segue com o que está aí
-    if binario() is None:        # sem modelo também sobe: o primeiro uso baixa os modelos pelo /api/pull dele
+    if _colibri():
+        import tars_motores
+        if tars_motores.binario("colibri") is None:
+            return None
+    elif binario() is None:        # sem modelo também sobe: o primeiro uso baixa os modelos pelo /api/pull dele
         return None
     extra = {"creationflags": 0x08000000 | 0x00000200} if plataforma.sistema() == "windows" else {"start_new_session": True}
     pasta().mkdir(parents=True, exist_ok=True)

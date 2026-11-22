@@ -25,6 +25,7 @@ janela (pid, título, nomes possíveis) e devolve dicionários simples.
 """
 
 import os
+import re
 import sys
 import threading
 import time
@@ -289,7 +290,10 @@ def achar_janela(pid=None, titulo=None, termos=(), ativa=False, ignorar_pids=())
         if titulo:
             exata = [j for j in lista if j["titulo"] == titulo]
             ativas = [j for j in lista if j["ativa"]]
-            return (ativas or exata or lista)[0]
+            # pediu o título de um diálogo ("Save As"), não o app: o diálogo ganha mesmo sem foco (TARS-World C1, 18/11)
+            pediu_dialogo = exata and any(chave_texto(t) == chave_texto(titulo) for t in termos) and not any(
+                chave_texto(t) == chave_texto(exata[0]["app"]) for t in termos)
+            return ((exata if pediu_dialogo else ativas) or exata or lista)[0]
         return next((j for j in lista if j["ativa"]), lista[0])
 
     if pid:
@@ -414,14 +418,38 @@ def _rotulo(papel, nome, estados):
     return f"{nome_ia} '{nome}'{extra}" if nome else f"{nome_ia} (no name){extra}"
 
 
+_REFS = []  # (nome, papel, n-ésimo igual) do último list_elements; "#3" ou "[3]" vira o 3º
+_RE_REF = re.compile(r"\s*[#\[]\s*(\d+)\s*\]?\s*")
+
+
+def _elegivel(nome, tipo):
+    return not (tipo == "texto" or (not nome and tipo == "clicavel"))
+
+
+def _por_ref(itens, n):
+    """Item da ref N do último list_elements, ou None se o número não existe."""
+    with _trava:
+        refs = list(_REFS)
+    if not 1 <= n <= len(refs):
+        return None
+    alvo_nome, alvo_papel, ordem = refs[n - 1]
+    achados = [i for i in itens if i[2] == alvo_nome and i[1] == alvo_papel and _elegivel(i[2], i[4])]
+    return achados[ordem - 1] if len(achados) >= ordem else None
+
+
+def nomes_de_combos(janela):
+    """Nomes das listas suspensas da janela (sem mexer nas referências #N de listar)."""
+    return [nome for _no, papel, nome, _e, _t in _itens(janela) if nome and PAPEIS_CLICAVEIS.get(papel) == "combo box"][:5]
+
+
 def listar(janela, filtro=None):
     """Elementos clicáveis e campos (agrupados por papel) + textos que a
     janela mostra. É o que a ferramenta list_elements devolve à IA."""
     itens = _itens(janela, forcar=True)
     filtro_k = chave_texto(filtro) if filtro else ""
-    grupos, total = {}, 0
+    grupos, total, refs, vistos = {}, 0, [], {}
     for _no, papel, nome, estados, tipo in itens:
-        if tipo == "texto" or (not nome and tipo == "clicavel"):
+        if not _elegivel(nome, tipo):
             continue
         if filtro_k and filtro_k not in chave_texto(nome):
             continue
@@ -429,8 +457,12 @@ def listar(janela, filtro=None):
             break
         papel_ia = PAPEIS_CLICAVEIS.get(papel) or PAPEIS_CAMPO.get(papel) or papel
         desativado = bool(estados) and "sensitive" not in estados and "enabled" not in estados
-        grupos.setdefault(papel_ia, []).append((nome or "(no name)") + (" (disabled)" if desativado else ""))
+        vistos[(nome, papel)] = vistos.get((nome, papel), 0) + 1
+        refs.append((nome, papel, vistos[(nome, papel)]))
+        grupos.setdefault(papel_ia, []).append(f"[{len(refs)}] " + (nome or "(no name)") + (" (disabled)" if desativado else ""))
         total += 1
+    with _trava:
+        _REFS[:] = refs
     return {"elementos": grupos, "textos": _textos(itens), "total": total}
 
 
@@ -535,9 +567,13 @@ def clicar(janela, nome, papel=None):
     """Clica no elemento pelo nome. Devolve um dict com 'sucesso'; sem
     ação disponível, devolve 'retangulo' pro núcleo tentar o clique de
     mouse (só vale se as coordenadas forem de tela, conferido lá)."""
-    item = _achar(_itens(janela), nome, papel)
-    if item is None:
-        item = _achar(_itens(janela, forcar=True), nome, papel)
+    ref = _RE_REF.fullmatch(nome or "")
+    if ref:  # "#3"/"[3]": o número do último list_elements; "3" puro continua sendo nome
+        item = _por_ref(_itens(janela), int(ref.group(1)))
+    else:
+        item = _achar(_itens(janela), nome, papel)
+        if item is None:
+            item = _achar(_itens(janela, forcar=True), nome, papel)
     if item is None:
         return {"sucesso": False, "achou": False}
 
@@ -545,8 +581,13 @@ def clicar(janela, nome, papel=None):
     rotulo = _rotulo(papel_item, nome_item, estados)
     itens = _itens(janela)
     antes = _textos(itens)
+    nomes_antes = {i[2] for i in itens if _elegivel(i[2], i[4])}
     if _acionar(no):
-        return {"sucesso": True, "achou": True, "elemento": rotulo, "textos": _textos_depois(itens, antes)}
+        textos = _textos_depois(itens, antes)
+        novos, sumiram = _diff_arvore(janela, nomes_antes)
+        with _trava:
+            _REFS.clear()  # a tela mudou: os números velhos não valem mais
+        return {"sucesso": True, "achou": True, "elemento": rotulo, "textos": textos, "novos": novos, "sumiram": sumiram}
     return {"sucesso": False, "achou": True, "elemento": rotulo, "retangulo": _retangulo(no)}
 
 
@@ -562,6 +603,15 @@ def localizar(janela, nome, papel=None):
     if not retangulo or retangulo[2] <= 0 or retangulo[3] <= 0:
         return None
     return _rotulo(papel_item, nome_item, estados), retangulo
+
+
+def _diff_arvore(janela, nomes_antes, limite=6):
+    """Nomes de elementos que apareceram e que sumiram depois da ação."""
+    try:
+        agora = {i[2] for i in _itens(janela, forcar=True) if _elegivel(i[2], i[4])}
+    except Exception:
+        return [], []
+    return sorted(agora - nomes_antes)[:limite], sorted(nomes_antes - agora)[:limite]
 
 
 def _textos_depois(itens, antes):
@@ -586,7 +636,7 @@ def preencher(janela, nome, texto):
     item = _achar(itens, nome, tipos=("campo",)) if nome else None
     if item is None and len(campos) == 1:
         item = campos[0]
-    if item is None:
+    if item is None and len(campos) < 2:  # com vários campos, escrever no que tem foco por chute trocava o campo (TARS-World D5)
         focado = [i for i in campos if "focused" in i[3]]
         item = focado[0] if focado else None
     if item is None:

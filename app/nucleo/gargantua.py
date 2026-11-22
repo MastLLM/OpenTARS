@@ -157,10 +157,14 @@ def sistema_gargantua():
 
 
 def prompt_do_modelo(modelo=None):
+    if usa_contrato_gen4(modelo):
+        return SISTEMA_GEN4 + contexto_sistema() + _memoria_para_prompt() + "\n" + t("_ia") + "\n"
     return sistema_gargantua() if eh_gargantua(modelo) else montar_system_prompt()
 
 
 def ferramentas_do_modelo(modelo, tarefa, texto):
+    if usa_contrato_gen4(modelo):
+        return ferramentas_gen4()
     return ferramentas_gargantua() if eh_gargantua(modelo) else ferramentas_do_pedido(tarefa, texto)
 
 

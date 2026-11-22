@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Account settings</title><script src="base.js"></script></head>
+<body>
+<h1>Account settings</h1>
+<label><input type="checkbox" id="escuro" onchange="ev('dark',this.checked?1:0)"> Dark mode</label><br>
+<label><input type="checkbox" id="notif" checked onchange="ev('notifications',this.checked?1:0)"> Email notifications</label><br>
+<label><input type="checkbox" id="dois" onchange="ev('twofactor',this.checked?1:0)"> Two-factor authentication</label><br>
+<label>Language <select id="lingua" aria-label="Language" onchange="ev('language',this.value)"><option>English</option><option>Português</option><option>Español</option><option>Deutsch</option></select></label><br>
+<button onclick="ev('save', [$('escuro').checked?1:0, $('notif').checked?1:0, $('dois').checked?1:0, $('lingua').value].join(' | '));$('salvo').hidden=false">Save changes</button>
+<p id="salvo" hidden>Settings saved.</p>
+<h2>Danger zone</h2>
+<button onclick="ev('delete_account_ask');mostrar('confirma',true)">Delete account</button>
+<p id="confirma" hidden>This cannot be undone. <button onclick="ev('delete_account')">Yes, delete my account</button></p>
+</body></html>

@@ -529,6 +529,13 @@ def tarefa_da_fila(tarefa, complexa=False):
     return tarefa
 
 
+def _gen4_em_uso():
+    """O modelo na placa é Gen 4, ou a conversa já tem chamadas que só o contrato Gen 4 usa."""
+    if modelo_atual and usa_contrato_gen4(modelo_atual):
+        return True
+    return any(m.get("role") == "tool" and m.get("tool_name") in NOMES_GEN4 for m in conversa)  # os 8 do núcleo
+
+
 def escolher_modelo(texto, tarefa=None, complexa=False):
 
     global modo_modelo
@@ -541,6 +548,12 @@ def escolher_modelo(texto, tarefa=None, complexa=False):
         tarefa = detectar_tarefa(texto)
 
     fila = tarefa_da_fila(tarefa, complexa)
+    if _gen4_em_uso():
+        # decisão 3 (21/11): com um Gen 4 em uso, o AUTO só troca para outro Gen 4 (o histórico da conversa
+        # está no formato do contrato novo; um modelo antigo leria chamadas que não conhece)
+        gen4 = [m for m in [modelo_atual] + construir_cadeia_fallback(fila) if m and usa_contrato_gen4(m)]
+        if gen4:
+            return gen4[0]
     if fila == "simples" and modelo_atual:
         # Conversa curta ("oi"): o modelo que já está na placa responde mais rápido que trocar
         # (descarregar um e carregar outro leva segundos).

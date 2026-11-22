@@ -88,15 +88,39 @@ a = modos.avancado()
 assert a == {"temperatura": 0.7, "contexto": 16384, "instrucoes": "seja breve",
              "ferramentas_desligadas": ["execute_terminal"]}, a
 assert av.msg.text() and not av.aviso.isVisibleTo(cfg)
+# 5.3.5: o motor (os testes fixam TARS_MOTOR=ollama: a página mostra o fixado e não troca)
+assert [av.motor.itemData(i) for i in range(av.motor.count())] == ["llamacpp", "ollama", "colibri"]
+assert av.motor.currentData() == "ollama"
+av.motor.setCurrentIndex(av.motor.findData("colibri"))
+assert av.motor_msg.text(), "ao escolher outro motor, diz se baixa (e quanto) ou se já existe"
+av._salvar()                                       # um botão só: o Salvar também troca o motor
+import tars_i18n  # noqa: E402
+assert av.motor_msg.text() == tars_i18n.t("cfg.av.motor_fixo") and "motor" not in tars_i18n.ler_config()
+assert av.motor.currentData() == "colibri", "o Salvar não pode voltar a escolha do motor"
+print("OK: Avançado escolhe o motor no Salvar; com TARS_MOTOR fixado não troca e não desfaz a escolha")
+
+# 21/11 (Enzo): depois de trocar de motor, a janela obriga a escolher um modelo do motor novo antes de enviar
+tars_i18n.salvar_config(escolher_modelo=True)
+menus, guardados = [], j._modelos
+j._menu_modelos = lambda: menus.append(1)
+j._ao_modelos(guardados)
+assert j.enviar("oi") is False and menus == [1], "o motor novo já tem modelo: abre o seletor do chat, não a loja"
+j._ao_modelos([])
+assert j.enviar("oi") is False and cfg.pilha.currentWidget() is cfg.paginas["modelos"], "sem nenhum modelo: aí sim a loja"
+assert cfg.paginas["modelos"].pedido.text() and not cfg.paginas["modelos"].pedido.isHidden()
+j.config.modelos_mudaram.emit()
+assert not tars_i18n.ler_config().get("escolher_modelo"), "baixou na página de modelos: vale como escolha, sem loop"
+j._ao_modelos(guardados)
+tars_i18n.salvar_config(escolher_modelo=True)
+j._escolher_modelo(j._modelos[0][1])
+assert not tars_i18n.ler_config().get("escolher_modelo")
+j._escolher_modelo(None)
+print("OK: trocou de motor, não envia nada até escolher um modelo dele; escolheu, libera")
 cfg.paginas["geral"].dev.setChecked(False)
 cfg.ir("geral")
 assert not cfg.nav["avancado"].isVisibleTo(cfg) and modos.avancado()["temperatura"] is None
 cfg.paginas["geral"].dev.setChecked(True)
 print("OK: Ajustes avançados gravam e só valem com o dev ligado")
-
-# 14/11: o Ollama saiu de tudo; Ajustes avançados não têm mais a escolha do motor
-assert not hasattr(av, "motor")
-print("OK: sem escolha de motor nos Ajustes avançados (o Ollama saiu)")
 
 # Busca de arquivos (5.3): o índice local é opcional e desligado por padrão; ligar monta em segundo plano, desligar apaga
 import tars_busca_arquivos  # noqa: E402

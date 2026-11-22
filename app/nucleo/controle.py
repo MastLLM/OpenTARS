@@ -80,9 +80,21 @@ def _comando_e_perigoso(comando):
     return ROTINA_ATUAL is not None and bool(categorias)
 
 
+class PedidoAprovacao(str):
+    """Texto de uma aprovação que não é comando de terminal (a ação sensível do computer use): leva o rótulo e a
+    pergunta do cartão, e pergunta toda vez."""
+
+    def __new__(cls, texto, etiqueta=None, pergunta=None):
+        pedido = super().__new__(cls, texto)
+        pedido.etiqueta, pedido.pergunta = etiqueta, pergunta
+        return pedido
+
+
 def pode_aprovar_na_sessao(comando):
     """"Sempre nesta sessão" só vale para o que pergunta por ser envio ou instalação (git push, apt install...). O que bate
     com um padrão destrutivo (rm -rf, mkfs, dd...) pergunta toda vez."""
+    if isinstance(comando, PedidoAprovacao):
+        return False
     comando = str(comando or "")
     return not any(re.search(p, comando, re.IGNORECASE | re.DOTALL) for p in _PADROES_COMANDO_PERIGOSO)
 
@@ -151,8 +163,8 @@ def _confirmar_comando_perigoso(comando):
 
     parar_girando()          # o símbolo de "trabalhando" não pode redesenhar por cima da pergunta
     imprimir_caixa(
-        "⚠ " + t("perigo.titulo"),
-        [_texto_visivel(comando), t("perigo.explicacao")],
+        "⚠ " + (getattr(comando, "etiqueta", None) or t("perigo.titulo")).upper(),
+        [_texto_visivel(comando), getattr(comando, "pergunta", None) or t("perigo.explicacao")],
         cor_titulo=Cor.VERMELHO,
     )
 
@@ -638,6 +650,17 @@ def clicar_mouse(botao="left", x=None, y=None, alvo=None, janela=None, duplo=Fal
         o_que = "Double-clicked" if duplo else f"Clicked the {botao} mouse button"
         mensagem = f"{o_que} at ({px}, {py})" + (f": {como}" if como else "") + "."
         resultado = {"sucesso": True, "mensagem": mensagem + _frase_conferencia(conferido), "x": px, "y": py}
+        if conferido == "nada" and not duplo and (alvo or "").strip() and "accessibility" not in (como or ""):
+            # Segunda tentativa: o retângulo da árvore costuma ser mais exato que a mira pela visão.
+            outro = _ponto_por_acessibilidade(alvo, janela)
+            if outro and abs(outro[0] - tx) + abs(outro[1] - ty) > 8:
+                ox, oy = _longe_da_quina(outro[0], outro[1])
+                pyautogui.moveTo(ox, oy, duration=DURACAO_MOVER_MOUSE_SEG)
+                c2 = _conferir(lambda: pyautogui.click(x=ox, y=oy, button=botao), ox, oy)
+                px, py = _para_print(ox, oy)
+                resultado = {"sucesso": True, "mensagem": mensagem + " Nothing changed, so tried again at "
+                             f"({px}, {py}): {outro[2]}." + _frase_conferencia(c2), "x": px, "y": py}
+                conferido = c2
         if conferido == "nada":
             resultado["sem_efeito"] = True
         return resultado

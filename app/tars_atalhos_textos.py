@@ -50,7 +50,6 @@ TEXTOS = {'pt': {'r_e_um': 'É só 1.','htop_falta': 'O htop não está instalad
         'feito': 'Pronto.',
         'falhou': 'Não deu certo: {erro}',
         'negado': 'Certo, não rodei.',
-        'de_onde': 'Segundo {site}: {trecho}',
         'tambem': 'Também: {site} ({titulo})',
         'nao_achei': 'Não achei uma boa resposta. O mais perto que encontrei: {titulo} ({site}).',
         'nada_para_salvar': 'Não tenho o que salvar do passo anterior.'},
@@ -103,7 +102,6 @@ TEXTOS = {'pt': {'r_e_um': 'É só 1.','htop_falta': 'O htop não está instalad
         'feito': 'Done.',
         'falhou': 'That did not work: {erro}',
         'negado': 'Okay, I did not run it.',
-        'de_onde': 'From {site}: {trecho}',
         'tambem': 'Also: {site} ({titulo})',
         'nao_achei': 'I could not find a good answer. The closest I found: {titulo} ({site}).',
         'nada_para_salvar': 'I have nothing to save from the step before.'}}

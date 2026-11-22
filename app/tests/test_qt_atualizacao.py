@@ -142,17 +142,4 @@ assert reiniciou == [1]
 principal_mod.plataforma.sistema = sistema_antes
 print("OK: um clique roda o instalador; terminou bem, o app reinicia; deu erro, a página mostra onde está o registro")
 
-# 5.3: quem veio da 5.2 com o Gargantua 2 (Qwen) recebe a oferta do 2.5; quem já tem o 2.5, ou máquina fraca, não
-import tars_primeiro_uso as pu_  # noqa: E402
-antes = (pu_.modelos_instalados, pu_.maquina_fraca, os.environ.pop("TARS_SEM_ATALHO", None))
-pu_.maquina_fraca = lambda *a, **k: False
-for instalados, espera in ((["ProjectOpenTARS/Gargantua-2:latest", "ProjectOpenTARS/Gargantua-2.5:lite"], True),
-                           (["ProjectOpenTARS/Gargantua-2:latest", "ProjectOpenTARS/Gargantua-2.5:latest"], False),
-                           (["ProjectOpenTARS/Gargantua-2.5:lite"], False)):
-    pu_.modelos_instalados = lambda host, l=instalados: l
-    assert j._falta_gargantua_25() is espera, instalados
-pu_.modelos_instalados, pu_.maquina_fraca = antes[0], antes[1]
-if antes[2] is not None:
-    os.environ["TARS_SEM_ATALHO"] = antes[2]
-print("OK: a faixa oferece o Gargantua 2.5 só a quem tem o Gargantua 2 e ainda não tem o 2.5")
 j.close()

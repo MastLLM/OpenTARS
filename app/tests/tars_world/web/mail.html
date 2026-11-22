@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>TARS Mail</title><script src="base.js"></script></head>
+<body>
+<h1>TARS Mail</h1>
+<button onclick="ev('compose');mostrar('novo',true)">Compose</button>
+<h2>Inbox</h2>
+<ul id="caixa"></ul>
+<article id="leitura" hidden><h3 id="l_assunto"></h3><p id="l_de"></p><p id="l_corpo"></p>
+  <button onclick="ev('archive',aberto);remover()">Archive</button> <button onclick="ev('delete',aberto);remover()">Delete</button></article>
+<section id="novo" hidden>
+  <h2>New message</h2>
+  <label>To <input id="para" aria-label="To"></label><br>
+  <label>Subject <input id="assunto" aria-label="Subject"></label><br>
+  <label>Message <textarea id="corpo" aria-label="Message"></textarea></label><br>
+  <button onclick="ev('send', $('para').value + ' | ' + $('assunto').value + ' | ' + $('corpo').value);mostrar('novo',false);$('enviado').hidden=false">Send</button>
+  <button onclick="ev('discard');mostrar('novo',false)">Discard</button>
+</section>
+<p id="enviado" hidden>Message sent.</p>
+<script>
+let M = [["Ana Souza", "Meeting moved to 3 PM", "Hi! The project meeting moved from 10 AM to 3 PM tomorrow, room B."],
+         ["Billing", "Your invoice #2291", "Your invoice of $84.90 is due on December 5."],
+         ["Mark Lee", "Lunch on Friday?", "Want to grab lunch on Friday at noon at the Italian place?"]];
+let aberto = "";
+function desenhar() {
+  $("caixa").innerHTML = "";
+  M.forEach(m => { const li = document.createElement("li"); const b = document.createElement("button");
+    b.textContent = m[0] + ": " + m[1];
+    b.onclick = () => { aberto = m[1]; ev("open", m[1]); $("l_assunto").textContent = m[1]; $("l_de").textContent = "From: " + m[0]; $("l_corpo").textContent = m[2]; mostrar("leitura", true); };
+    li.appendChild(b); $("caixa").appendChild(li); });
+}
+function remover() { M = M.filter(m => m[1] !== aberto); mostrar("leitura", false); desenhar(); }
+desenhar();
+</script>
+</body></html>

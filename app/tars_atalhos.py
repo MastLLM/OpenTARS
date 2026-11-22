@@ -6,7 +6,6 @@ de 19 para 30 de 40 tarefas inéditas, e modelos maiores não ganharam do pequen
 - contas;
 - operações de arquivo com os nomes ligados ao disco e a resposta em palavras (tars_operacoes, tars_nomes);
 - pedidos de vários passos (tars_passos);
-- perguntas sobre o mundo respondidas por um resultado do SearXNG, com o site (tars_resposta_web).
 
 resolver() devolve o texto da resposta, ou None: aí o pedido segue para o modelo, como antes. Os comandos passam por
 executar_ferramenta, então valem as mesmas regras de segurança e o mesmo cartão de aprovação do resto do app.
@@ -27,7 +26,6 @@ import tars_operacoes as operacoes
 import tars_passos as passos
 import tars_regras_terminal as regras_terminal
 import tars_sistema_frases as sistema_frases
-import tars_resposta_web as resposta_web
 from tars_atalhos_textos import t
 
 _MARCAS_PT = re.compile(r"[ãõçáéíóúâêô]|\b(o|os|as|um|uma|de|do|da|que|qual|quanto|quanta|quem|como|onde|por|para|pra|meu|minha|tem|tenho|e|é|cria|faz|lembra|esquece|"
@@ -210,7 +208,7 @@ def _plano(pedido, n, idioma, linux):
     return {"comando": p} if isinstance(p, str) else p
 
 
-def _uma_parte(pedido, idioma, core, estado_passos, linux, permitir_mundo=True):
+def _uma_parte(pedido, idioma, core, estado_passos, linux):
     """(resposta, deu_certo) de uma frase, ou None se é com o modelo."""
     import tars_plataforma
     n = normalizar(pedido)
@@ -233,36 +231,7 @@ def _uma_parte(pedido, idioma, core, estado_passos, linux, permitir_mundo=True):
     fala = estado(n, idioma) or tars_conta.resolver(n, idioma)
     if fala:
         return fala, True
-    if permitir_mundo:
-        fala = mundo(pedido, n, idioma)
-        if fala:
-            return fala, True
     return None
-
-
-# ---------------- perguntas sobre o mundo ----------------
-_PERGUNTA = re.compile(r"^(quem|qual|quais|quando|onde|quanto|quanta|quantos|quantas|em que ano|o que e|o que foi|what|who|which|when|where|how (tall|far|high|long|big|many|much|old)|"
-                       r"in what year|what year)\b")
-_PESSOAL = re.compile(r"\b(voce|seu|sua|you|your|eu|meu|minha|meus|minhas|me|mim|my|i|computador|computer|pc|arquivo|arquivos|file|files|pasta|folder|disco|disk|"
-                      r"memoria|memory|ram|cpu|processador|processor|wifi|internet|placa|ip|senha|password|lembr|remind|timer|alarme|alarm)\b")
-
-
-def mundo(pedido, n, idioma):
-    """Uma frase de um resultado do SearXNG que responde, com o site. None: sem SearXNG ligado, sem resultado bom, ou não é pergunta sobre o mundo."""
-    if not _PERGUNTA.search(n) or _PESSOAL.search(n):
-        return None
-    try:
-        import tars_web
-        if not tars_web.config()["ligada"]:
-            return None
-        achado = resposta_web.responder(pedido.strip(" ?"))
-    except Exception:  # noqa: BLE001 - sem busca, o modelo responde como antes
-        return None
-    if not achado:
-        return None
-    import urllib.parse
-    site = urllib.parse.urlsplit(achado["url"]).hostname or achado["url"]
-    return t("de_onde", idioma, site=site, trecho=achado["trecho"])
 
 
 # ---------------- entrada ----------------
@@ -298,9 +267,9 @@ def resolver(texto, core):
                 resposta, ok = comando({"comando": f"{anterior} > {operacoes._q(destino)}"}, idioma, core, estado_passos)
             else:
                 parte = passos.com_lugar(parte, estado_passos["lugar"]) if i else parte
-                feito = _uma_parte(parte, idioma, core, estado_passos, linux, permitir_mundo=False)
+                feito = _uma_parte(parte, idioma, core, estado_passos, linux)
                 if feito is None and i and estado_passos["alvo"]:
-                    feito = _uma_parte(f"{parte} {'de' if idioma == 'pt' else 'of'} {estado_passos['alvo']}", idioma, core, estado_passos, linux, False)
+                    feito = _uma_parte(f"{parte} {'de' if idioma == 'pt' else 'of'} {estado_passos['alvo']}", idioma, core, estado_passos, linux)
                 if feito is None:
                     if i == 0:
                         return None          # o primeiro passo não é de regra: o pedido inteiro vai para o modelo

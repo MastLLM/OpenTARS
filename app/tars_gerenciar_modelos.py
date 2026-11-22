@@ -109,3 +109,45 @@ def detalhe(m, tamanho_texto):
     """'7.6B · Q4_K_M · 4.7 GB · 2026-10-21' sem os campos que o motor não informou."""
     partes = [m["parametros"], m["quantizacao"], tamanho_texto(m["gb"]) if m["gb"] else "", m["data"]]
     return " · ".join(p for p in partes if p)
+
+
+# Decisão do Enzo (21/11/2026): Gargantua novo que substitui o antigo não é oferta, é troca obrigatória, em todos os sistemas.
+# O app baixa o novo e só então apaga o velho, sozinho. Geração nova: acrescente aqui o nome base que ela aposenta.
+G25, LITE = "ProjectOpenTARS/Gargantua-2.5:latest", "ProjectOpenTARS/Gargantua-2.5:lite"
+SUBSTITUTOS = {   # nome base aposentado (minúsculo): (substituto do principal, substituto do Lite)
+    "projectopentars/gargantua": (G25, LITE),      # Gargantua 1.x (Qwen3 4B)
+    "projectopentars/gargantua-2": (G25, LITE),    # Gargantua 2 e Lite Gen 2 (Qwen3.5)
+}
+
+
+def trocas(instalados, fraca=False):
+    """[(velho, novo)]: cada Gargantua aposentado vira o substituto (o Lite vira Lite; máquina fraca recebe sempre o Lite)."""
+    saida = []
+    for nome in instalados:
+        base, _, tag = nome.lower().partition(":")
+        par = SUBSTITUTOS.get(nome.lower()) or SUBSTITUTOS.get(base)
+        if par:
+            saida.append((nome, par[1] if fraca or "lite" in tag else par[0]))
+    return saida
+
+
+def pendentes(host, fraca=False, abrir=None, abrir_registro=None):
+    """As trocas obrigatórias deste motor: os aposentados e os republicados com arquivo novo (velho == novo: baixar de novo)."""
+    try:
+        instalados = [m["nome"] for m in listar(host, abrir)]
+    except Exception:  # noqa: BLE001  (motor fora do ar: tenta na próxima abertura)
+        return []
+    return trocas(instalados, fraca) + [(n, n) for n in desatualizados(host, abrir, abrir_registro)]
+
+
+def trocar(pares, host, baixar, abrir=None):
+    """Baixa cada novo (baixar(nome) -> (ok, erro)) e, deu certo, apaga o velho. Devolve [(velho, novo, erro)], erro "" se foi."""
+    feitos, baixados = [], {}
+    for velho, novo in pares:
+        if novo not in baixados:
+            baixados[novo] = baixar(novo)
+        ok, erro = baixados[novo]
+        if ok and velho != novo:
+            ok, erro = apagar(velho, host, abrir)
+        feitos.append((velho, novo, "" if ok else (erro or "?")))
+    return feitos
