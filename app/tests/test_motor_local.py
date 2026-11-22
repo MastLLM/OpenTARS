@@ -108,7 +108,7 @@ except ValueError:
     pass
 m.adicionar_da_loja("hf.co/bartowski/Qwen3-4B-GGUF:Q4_K_M", boa)
 assert m.CATALOGO["hf.co/bartowski/Qwen3-4B-GGUF:Q4_K_M"]["repo"] == "bartowski/Qwen3-4B-GGUF"
-assert m.CATALOGO["ProjectOpenTARS/Gargantua-2.5:latest"]["repo"] == "OpenTARS/Gargantua-2.5"
+assert m.CATALOGO["ProjectOpenTARS/Gargantua-2.5:latest"]["repo"] == "Mast-LLM/Gargantua-2.5"
 assert not m.instalado("hf.co/bartowski/Qwen3-4B-GGUF:Q4_K_M")
 m.remover_da_loja("hf.co/bartowski/Qwen3-4B-GGUF:Q4_K_M")
 assert "hf.co/bartowski/Qwen3-4B-GGUF:Q4_K_M" not in m.CATALOGO and "ProjectOpenTARS/Gargantua-2.5:latest" in m.CATALOGO
