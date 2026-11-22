@@ -1,13 +1,13 @@
 # openTARS para Windows: instala sem administrador, só na pasta do usuário.
 #
-#   irm https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex
+#   irm https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex
 #
 # Desde 14/11/2026 o openTARS do Windows é um app pronto (Python, Qt e o motor llama.cpp dentro). Este script só baixa o
 # instalador da última Release (opentars-setup.exe), confere o SHA-256 no SHA256SUMS da mesma Release e o roda em silêncio.
 # Quem tinha a instalação antiga por script (código e Python em %LOCALAPPDATA%\openTARS) passa para o app pronto: o
 # instalador apaga o código e o Python antigos e mantém as conversas, as configurações e os modelos.
 # Rodar de novo atualiza. Remover:
-#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/windows/instalar.ps1))) -Remover
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/windows/instalar.ps1))) -Remover
 param(
     [switch]$Remover,
     [string]$Fonte = "",        # aceito por compatibilidade (não usado: o instalador vem pronto da Release)
@@ -17,7 +17,7 @@ param(
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"        # a barra do Invoke-WebRequest deixa o download muito lento no PowerShell 5.1
 
-$Release = if ($env:OPENTARS_RELEASE) { $env:OPENTARS_RELEASE } else { "https://github.com/project-opentars/OpenTARS/releases/latest/download" }   # o CI aponta para os arquivos que acabou de montar
+$Release = if ($env:OPENTARS_RELEASE) { $env:OPENTARS_RELEASE } else { "https://github.com/MastLLM/OpenTARS/releases/latest/download" }   # o CI aponta para os arquivos que acabou de montar
 $Instalado = Join-Path $env:LOCALAPPDATA "Programs\openTARS"
 $Antigo = Join-Path $env:LOCALAPPDATA "openTARS"
 $Pt = (Get-Culture).Name -like "pt*"

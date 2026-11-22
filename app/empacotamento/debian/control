@@ -11,7 +11,7 @@ Replaces: tars
 Provides: tars
 Installed-Size: @TAMANHO@
 Maintainer: Enzo <enzorcasao@gmail.com>
-Homepage: https://github.com/project-opentars/OpenTARS
+Homepage: https://github.com/MastLLM/OpenTARS
 Description: local AI assistant for your desktop
  openTARS is an AI assistant that runs on your own machine. It understands
  requests in English and Portuguese and works on the desktop: opens and

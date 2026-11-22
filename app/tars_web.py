@@ -25,7 +25,7 @@ LIMITE_RESULTADOS = 8
 LIMITE_PAGINA_BYTES = 1_000_000
 LIMITE_TEXTO_PAGINA = 8000
 TIMEOUT = 10
-AGENTE = "openTARS/5.1 (+https://project-opentars.github.io/OpenTARS/)"
+AGENTE = "openTARS/5.1 (+https://mastllm.github.io/OpenTARS/)"
 
 
 def config():

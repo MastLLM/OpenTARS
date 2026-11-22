@@ -14,7 +14,7 @@ from pathlib import Path
 
 import tars_plataforma as plataforma
 
-URL_TARS_PUBLICADO = ("https://raw.githubusercontent.com/project-opentars/OpenTARS/"
+URL_TARS_PUBLICADO = ("https://raw.githubusercontent.com/MastLLM/OpenTARS/"
                       "main/app/tars.py")
 INTERVALO_S = 24 * 3600
 
@@ -49,7 +49,7 @@ def _desligado():
 # rodar o comando de instalação de novo. O sinal de versão nova é o mesmo (o .deb novo no GitHub, publicado junto com os
 # scripts), comparado com a hora da instalação, que os instaladores marcam com este arquivo.
 MARCA_SCRIPT = Path(__file__).resolve().parent / ".instalado-pelo-script"
-_RAW = "https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento"
+_RAW = "https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento"
 COMANDO_REINSTALAR = {"windows": f"irm {_RAW}/windows/instalar.ps1 | iex", "macos": f"curl -fsSL {_RAW}/macos/instalar.sh | bash",
                       "linux": f"curl -fsSL {_RAW}/linux/instalar.sh | bash"}
 
@@ -133,7 +133,7 @@ import subprocess
 import tempfile
 from urllib.parse import quote, urlparse
 
-REPOSITORIO = "project-opentars/OpenTARS"
+REPOSITORIO = "MastLLM/OpenTARS"
 URL_CONTEUDO = os.environ.get("TARS_URL_CONTEUDO") or f"https://api.github.com/repos/{REPOSITORIO}/contents/"
 URL_ARVORE = os.environ.get("TARS_URL_ARVORE") or f"https://api.github.com/repos/{REPOSITORIO}/git/trees/HEAD?recursive=1"
 URL_COMMITS = os.environ.get("TARS_URL_COMMITS") or f"https://api.github.com/repos/{REPOSITORIO}/commits?per_page=1"

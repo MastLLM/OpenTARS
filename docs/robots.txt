@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://project-opentars.github.io/OpenTARS/sitemap.xml
+Sitemap: https://mastllm.github.io/OpenTARS/sitemap.xml

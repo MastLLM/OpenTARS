@@ -1,4 +1,4 @@
-# 5.3 (F5): atestado de origem dos arquivos de cada Release (gh attestation verify opentars_all.deb --repo project-opentars/OpenTARS).
+# 5.3 (F5): atestado de origem dos arquivos de cada Release (gh attestation verify opentars_all.deb --repo MastLLM/OpenTARS).
 # Roda quando uma Release é publicada ou à mão (com a tag). Só baixa os arquivos da Release e os atesta; não muda nada nela.
 name: atestar
 on:

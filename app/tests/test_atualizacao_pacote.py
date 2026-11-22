@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import tars_atualizacao as a  # noqa: E402
 
 SHA = "b" * 64
-G = "https://github.com/project-opentars/OpenTARS/releases/download/5.3/"
+G = "https://github.com/MastLLM/OpenTARS/releases/download/5.3/"
 RELEASE = {"tag_name": "5.3", "body": "notas", "assets": [{"name": n, "browser_download_url": G + n} for n in
            ("versao.json", "SHA256SUMS", "opentars-setup.exe", "openTARS-macos-arm64.dmg", "opentars_all.deb")]}
 TEXTOS = {G + "versao.json": json.dumps({"revisao": 2026111501, "versao": "5.3"}),

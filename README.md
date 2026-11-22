@@ -16,7 +16,7 @@ Local by default, free and open source, with an AI trained just for it.
 [![Languages](https://img.shields.io/badge/languages-EN%20%C2%B7%20PT--BR-1A2446?style=flat-square)](#languages)
 [![Instagram @open.tars](https://img.shields.io/badge/Instagram-@open.tars-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://www.instagram.com/open.tars/)
 
-[Install](#install) · [What it does](#what-it-does) · [Gargantua](#gargantua-an-ai-made-for-this) · [How it works](#how-it-works) · [Safety](#your-computer-your-rules) · [Terminal](#terminal) · [New in 5.3](#new-in-53-tesseract) · [Website](https://project-opentars.github.io/OpenTARS/)
+[Install](#install) · [What it does](#what-it-does) · [Gargantua](#gargantua-an-ai-made-for-this) · [How it works](#how-it-works) · [Safety](#your-computer-your-rules) · [Terminal](#terminal) · [New in 5.3](#new-in-53-tesseract) · [Website](https://mastllm.github.io/OpenTARS/)
 
 <br>
 
@@ -31,35 +31,35 @@ One command. It sets up everything, downloads the models and tests them.
 **Windows 10 or 11**, in PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex
+irm https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex
 ```
 
-Or download [opentars-setup.exe](https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars-setup.exe).
+Or download [opentars-setup.exe](https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars-setup.exe).
 
 **macOS 12 or newer**, in Terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash
 ```
 
-Or download the app for [Apple Silicon](https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg) or [Intel](https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg).
+Or download the app for [Apple Silicon](https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg) or [Intel](https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg).
 
 **Ubuntu, Debian, Mint, Zorin, Pop!_OS:**
 
 ```bash
-wget -O /tmp/opentars.deb https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb && sudo apt install -y --reinstall /tmp/opentars.deb
+wget -O /tmp/opentars.deb https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb && sudo apt install -y --reinstall /tmp/opentars.deb
 ```
 
 **Fedora, Arch, openSUSE:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash
 ```
 
-**Raspberry Pi, Orange Pi and other small boards:** see **[openTARS Pi](https://github.com/project-opentars/OpenTARS-Pi)**, the edition made for them.
+**Raspberry Pi, Orange Pi and other small boards:** see **[openTARS Pi](https://github.com/MastLLM/OpenTARS-Pi)**, the edition made for them.
 
 ```bash
-curl -fsSL https://github.com/project-opentars/OpenTARS-Pi/releases/latest/download/install.sh | bash
+curl -fsSL https://github.com/MastLLM/OpenTARS-Pi/releases/latest/download/install.sh | bash
 ```
 
 Then open **openTARS** from your menu. Windows and macOS need no administrator password: everything goes into your user folder. A short first-run window picks the right model for your computer. Running the same command again updates, and your chats and settings stay.
@@ -149,7 +149,7 @@ flowchart LR
 - **Routines and Probes stay on a leash.** A routine only does what you allowed when you created it, and a Probe only reads unless you chose an action.
 - **No account, no subscription.** Keys you add stay on this computer and are never shown or logged. It also checks GitHub for updates, and you can turn that off.
 
-More in the [privacy page](https://project-opentars.github.io/OpenTARS/privacy.html).
+More in the [privacy page](https://mastllm.github.io/OpenTARS/privacy.html).
 
 ## Terminal
 
@@ -185,7 +185,7 @@ More in the [privacy page](https://project-opentars.github.io/OpenTARS/privacy.h
 | **Linux** | Ubuntu 22.04+, Debian 12+, Mint, Zorin, Pop!_OS, Fedora, Arch, openSUSE. GNOME, KDE, Cinnamon, XFCE, MATE and others. X11 has everything; on Wayland, chat, apps, commands, screenshots and clicking by name work |
 | **Windows** | 10 and 11. Voice is the newest part here |
 | **macOS** | 12 or newer, tested so far on GitHub's macOS machines. The first run asks for Accessibility and Screen Recording |
-| **Small boards** | 64-bit boards with [openTARS Pi](https://github.com/project-opentars/OpenTARS-Pi) |
+| **Small boards** | 64-bit boards with [openTARS Pi](https://github.com/MastLLM/OpenTARS-Pi) |
 | **No screen** | SSH, servers and WSL with `opentars --chat` |
 | **Graphics card** | NVIDIA, AMD or none |
 
@@ -205,11 +205,11 @@ The window, the terminal, the installer and the menu speak **English and Portugu
 - **One-click updates on Windows, macOS and every Linux.**
 - **Clicks in Chromium and Electron apps,** reopened with accessibility on when you allow it.
 - **Calendar, notes, e-mail, music and system settings by sentence,** on Linux, Windows and macOS.
-- **[Verify your download](https://project-opentars.github.io/OpenTARS/verify.html)** with the checksum and the GitHub attestation of each release.
+- **[Verify your download](https://mastllm.github.io/OpenTARS/verify.html)** with the checksum and the GitHub attestation of each release.
 
 ## Help
 
-- **Something is off?** Run `opentars --diagnostico` and send us the report it saves, by [opening an issue](https://github.com/project-opentars/OpenTARS/issues) or at projectopentars@gmail.com.
+- **Something is off?** Run `opentars --diagnostico` and send us the report it saves, by [opening an issue](https://github.com/MastLLM/OpenTARS/issues) or at projectopentars@gmail.com.
 - **The AI does not answer:** `opentars --diagnostico` checks the llama.cpp engine and the models, and says what is missing.
 - **A shortcut does nothing:** `opentars --atalho` shows what is registered, and `opentars --atalho ctrl+alt+o` picks another.
 - **Clicking by name misses an app's buttons:** open that app through openTARS, or turn on "Let openTARS reopen an app so it can click its buttons" in Settings → Assistant, for Chromium and Electron apps. On Wayland, an Xorg session gives clicks by position.
@@ -230,7 +230,7 @@ bash empacotamento/build.sh     # builds the .deb
 
 ## Follow along
 
-News and what is coming: **[@open.tars on Instagram](https://www.instagram.com/open.tars/)** and the [changelog](https://project-opentars.github.io/OpenTARS/changelog.html).
+News and what is coming: **[@open.tars on Instagram](https://www.instagram.com/open.tars/)** and the [changelog](https://mastllm.github.io/OpenTARS/changelog.html).
 
 ## License
 

@@ -5,7 +5,7 @@
 set -euo pipefail
 VERSAO="$1"; EXE="$2"; SAIDA="${3:-saida/$VERSAO}"
 SHA=$(sha256sum "$EXE" | cut -d' ' -f1 | tr a-f A-F)
-URL="https://github.com/project-opentars/OpenTARS/releases/download/$VERSAO/opentars-setup.exe"
+URL="https://github.com/MastLLM/OpenTARS/releases/download/$VERSAO/opentars-setup.exe"
 mkdir -p "$SAIDA"
 P=project-opentars.openTARS
 cat > "$SAIDA/$P.yaml" <<Y
@@ -40,13 +40,13 @@ cat > "$SAIDA/$P.locale.en-US.yaml" <<Y
 PackageIdentifier: $P
 PackageVersion: $VERSAO
 PackageLocale: en-US
-Publisher: project-opentars
-PublisherUrl: https://project-opentars.github.io/OpenTARS/
-PublisherSupportUrl: https://github.com/project-opentars/OpenTARS/issues
+Publisher: MastLLM
+PublisherUrl: https://mastllm.github.io/OpenTARS/
+PublisherSupportUrl: https://github.com/MastLLM/OpenTARS/issues
 PackageName: openTARS
-PackageUrl: https://project-opentars.github.io/OpenTARS/
+PackageUrl: https://mastllm.github.io/OpenTARS/
 License: MIT
-LicenseUrl: https://github.com/project-opentars/OpenTARS/blob/main/LICENSE
+LicenseUrl: https://github.com/MastLLM/OpenTARS/blob/main/LICENSE
 ShortDescription: Your AI assistant on your own computer, local by default.
 Description: openTARS runs small AI models on your own machine (llama.cpp), controls apps, files and the screen with your approval, and keeps your data at home. Cloud is optional and off by default.
 Moniker: opentars

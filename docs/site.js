@@ -43,7 +43,7 @@
   if (celular && bloco && get) {
     bloco.hidden = false;
     get.hidden = true;
-    var enviar = document.getElementById('enviar'), endereco = 'https://project-opentars.github.io/OpenTARS/';
+    var enviar = document.getElementById('enviar'), endereco = 'https://mastllm.github.io/OpenTARS/';
     enviar.addEventListener('click', function () {
       if (navigator.share) {
         navigator.share({ title: 'openTARS', text: 'Your AI, on your computer.', url: endereco }).catch(function () {});

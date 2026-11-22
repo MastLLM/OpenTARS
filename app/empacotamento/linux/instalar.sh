@@ -2,7 +2,7 @@
 # openTARS para outros Linux (Fedora, Arch, openSUSE e derivados; 5.2, experimental). No Ubuntu, Debian, Mint, Zorin e
 # Pop!_OS o caminho continua sendo o .deb.
 #
-#   curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash
 #
 # O que faz: instala os pacotes do sistema que o openTARS usa pelo gerenciador da distribuição (dnf, pacman, zypper ou
 # apt; é a única parte que pede a senha), baixa o código do app (pasta app/ do repositório) para a pasta do usuário, cria
@@ -19,7 +19,7 @@ BIN="$HOME/.local/bin"
 ATALHO="$DADOS/applications/opentars.desktop"
 ICONE="$DADOS/icons/hicolor/scalable/apps/opentars.svg"
 INICIO="${XDG_CONFIG_HOME:-$HOME/.config}/autostart"
-ZIP="https://github.com/project-opentars/OpenTARS/archive/refs/heads/main.zip"
+ZIP="https://github.com/MastLLM/OpenTARS/archive/refs/heads/main.zip"
 FONTE=""            # --fonte PASTA: a pasta app/ local em vez de baixar (o CI usa)
 SEM_SISTEMA=0       # --sem-sistema: não instala pacotes do sistema (quem já instalou à mão, ou sem sudo)
 REMOVER=0

@@ -1,7 +1,7 @@
 #!/bin/bash
 # openTARS para macOS: instala sem senha de administrador, só na pasta do usuário.
 #
-#   curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash
 #
 # Desde 14/11/2026 o openTARS do macOS é um app pronto (Python, Qt e o motor llama.cpp com Metal dentro), assinado ad-hoc.
 # Este script baixa o .dmg da última Release para o seu Mac (Apple Silicon ou Intel), confere o SHA-256 no SHA256SUMS da mesma
@@ -12,7 +12,7 @@
 # Rodar de novo atualiza. Remover: o mesmo comando com "| bash -s -- --remover".
 set -euo pipefail
 
-RELEASE="${OPENTARS_RELEASE:-https://github.com/project-opentars/OpenTARS/releases/latest/download}"   # o CI aponta para os arquivos que acabou de montar
+RELEASE="${OPENTARS_RELEASE:-https://github.com/MastLLM/OpenTARS/releases/latest/download}"   # o CI aponta para os arquivos que acabou de montar
 APP_MAC="$HOME/Applications/openTARS.app"
 BIN="$HOME/.local/bin"
 ANTIGO="$HOME/Library/Application Support/openTARS"      # a instalação por script (app/ e venv/); os dados ficam lá também

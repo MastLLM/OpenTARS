@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>openTARS: your AI, on your computer</title>
 <meta name="description" content="openTARS is a free, open source AI assistant for Linux, Windows and macOS. Ask in plain words and it opens programs, clicks buttons, types and runs commands on your own machine, with a small model and no graphics card needed.">
-<link rel="canonical" href="https://project-opentars.github.io/OpenTARS/">
+<link rel="canonical" href="https://mastllm.github.io/OpenTARS/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="openTARS">
-<meta property="og:url" content="https://project-opentars.github.io/OpenTARS/">
+<meta property="og:url" content="https://mastllm.github.io/OpenTARS/">
 <meta property="og:title" content="openTARS: your AI, on your computer">
 <meta property="og:description" content="Ask in plain words. It does the work on your own machine. Free, open source, local by default.">
-<meta property="og:image" content="https://project-opentars.github.io/OpenTARS/img/og-card.png">
+<meta property="og:image" content="https://mastllm.github.io/OpenTARS/img/og-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="openTARS: your AI, on your computer">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="openTARS: your AI, on your computer">
 <meta name="twitter:description" content="Ask in plain words. It does the work on your own machine. Free, open source, local by default.">
-<meta name="twitter:image" content="https://project-opentars.github.io/OpenTARS/img/og-card.png">
+<meta name="twitter:image" content="https://mastllm.github.io/OpenTARS/img/og-card.png">
 <meta name="theme-color" content="#141C38">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="icon" href="img/icon-32.png" sizes="32x32" type="image/png">
@@ -29,8 +29,8 @@
 <script type="application/ld+json">
 {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "openTARS", "applicationCategory": "UtilitiesApplication",
  "operatingSystem": "Linux, Windows, macOS", "softwareVersion": "5.3",
- "license": "https://opensource.org/licenses/MIT", "url": "https://project-opentars.github.io/OpenTARS/",
- "downloadUrl": "https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb",
+ "license": "https://opensource.org/licenses/MIT", "url": "https://mastllm.github.io/OpenTARS/",
+ "downloadUrl": "https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb",
  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
  "description": "A free, open source AI assistant for Linux, Windows and macOS that opens programs, clicks buttons by name, types and runs commands on your own machine."}
 </script>
@@ -45,7 +45,7 @@
       <a href="#new">What's new</a>
       <a href="#pi">Pi</a>
       <a href="#install">Install</a>
-      <a href="https://github.com/project-opentars/OpenTARS">GitHub</a>
+      <a href="https://github.com/MastLLM/OpenTARS">GitHub</a>
     </nav>
   </div>
 </header>
@@ -79,22 +79,22 @@
             <button role="tab" id="t-lin" aria-controls="p-lin" aria-selected="false" tabindex="-1">Other Linux</button>
           </div>
           <div class="cmd" role="tabpanel" id="p-win" aria-labelledby="t-win">
-            <pre id="c-win" tabindex="0">irm https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex</pre>
+            <pre id="c-win" tabindex="0">irm https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex</pre>
             <button type="button" data-copy="c-win">Copy</button>
-            <p>Paste it in PowerShell, or <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars-setup.exe">download the installer</a>. No administrator password.</p>
+            <p>Paste it in PowerShell, or <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars-setup.exe">download the installer</a>. No administrator password.</p>
           </div>
           <div class="cmd" role="tabpanel" id="p-mac" aria-labelledby="t-mac" hidden>
-            <pre id="c-mac" tabindex="0">curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash</pre>
+            <pre id="c-mac" tabindex="0">curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash</pre>
             <button type="button" data-copy="c-mac">Copy</button>
-            <p>Paste it in Terminal, or download the app for <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg">Apple Silicon</a> or <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg">Intel</a>.</p>
+            <p>Paste it in Terminal, or download the app for <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg">Apple Silicon</a> or <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg">Intel</a>.</p>
           </div>
           <div class="cmd" role="tabpanel" id="p-deb" aria-labelledby="t-deb" hidden>
-            <pre id="c-deb" tabindex="0">wget -O /tmp/opentars.deb https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb &amp;&amp; sudo apt install -y --reinstall /tmp/opentars.deb</pre>
+            <pre id="c-deb" tabindex="0">wget -O /tmp/opentars.deb https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb &amp;&amp; sudo apt install -y --reinstall /tmp/opentars.deb</pre>
             <button type="button" data-copy="c-deb">Copy</button>
-            <p>Or <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb">download the .deb</a> and open it.</p>
+            <p>Or <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb">download the .deb</a> and open it.</p>
           </div>
           <div class="cmd" role="tabpanel" id="p-lin" aria-labelledby="t-lin" hidden>
-            <pre id="c-lin" tabindex="0">curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash</pre>
+            <pre id="c-lin" tabindex="0">curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash</pre>
             <button type="button" data-copy="c-lin">Copy</button>
             <p>For Fedora, Arch and openSUSE.</p>
           </div>
@@ -247,14 +247,14 @@
     <div class="wrap">
       <h2 id="placa">New: openTARS Pi 1.1.</h2>
       <p class="lede">Your Raspberry Pi or Orange Pi, in plain words. It finds the file you mean, does tasks with several steps, drives the pins and answers in words. No cloud, no GPU, no account.</p>
-      <div class="cmd"><pre id="i-pi" tabindex="0">curl -fsSL https://github.com/project-opentars/OpenTARS-Pi/releases/latest/download/install.sh | bash</pre><button type="button" data-copy="i-pi">Copy</button><p>Then type <code>opentars</code>.</p></div>
+      <div class="cmd"><pre id="i-pi" tabindex="0">curl -fsSL https://github.com/MastLLM/OpenTARS-Pi/releases/latest/download/install.sh | bash</pre><button type="button" data-copy="i-pi">Copy</button><p>Then type <code>opentars</code>.</p></div>
       <ul class="facts">
         <li><b>1 GB of RAM</b> is enough. Tested on an Orange Pi Zero 2W.</li>
         <li><b>30 of 40</b> everyday tasks it had never seen, up from 19 in 1.0.</li>
         <li><b>0.6 s</b> for board status, files, memory and pins.</li>
         <li><b>Your yes first.</b> Only commands that just read run on their own.</li>
       </ul>
-      <p><a class="btn" href="https://github.com/project-opentars/OpenTARS-Pi">See openTARS Pi on GitHub</a></p>
+      <p><a class="btn" href="https://github.com/MastLLM/OpenTARS-Pi">See openTARS Pi on GitHub</a></p>
     </div>
   </section>
 
@@ -284,18 +284,18 @@
       <div class="ways">
         <div>
           <h3>Windows 10 or 11</h3>
-          <div class="cmd"><pre id="i-win" tabindex="0">irm https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex</pre><button type="button" data-copy="i-win">Copy</button></div>
-          <p>In PowerShell, or <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars-setup.exe">download opentars-setup.exe</a>. Everything goes into your user folder.</p>
+          <div class="cmd"><pre id="i-win" tabindex="0">irm https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/windows/instalar.ps1 | iex</pre><button type="button" data-copy="i-win">Copy</button></div>
+          <p>In PowerShell, or <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars-setup.exe">download opentars-setup.exe</a>. Everything goes into your user folder.</p>
         </div>
         <div>
           <h3>macOS 12 or newer</h3>
-          <div class="cmd"><pre id="i-mac" tabindex="0">curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash</pre><button type="button" data-copy="i-mac">Copy</button></div>
-          <p>In Terminal, or get the .dmg for <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg">Apple Silicon</a> or <a href="https://github.com/project-opentars/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg">Intel</a>. The first run asks for Accessibility and Screen Recording.</p>
+          <div class="cmd"><pre id="i-mac" tabindex="0">curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/macos/instalar.sh | bash</pre><button type="button" data-copy="i-mac">Copy</button></div>
+          <p>In Terminal, or get the .dmg for <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-arm64.dmg">Apple Silicon</a> or <a href="https://github.com/MastLLM/OpenTARS/releases/latest/download/openTARS-macos-x86_64.dmg">Intel</a>. The first run asks for Accessibility and Screen Recording.</p>
         </div>
         <div>
           <h3>Ubuntu, Debian, Mint, Zorin, Pop!_OS</h3>
-          <div class="cmd"><pre id="cmd" tabindex="0">wget -O /tmp/opentars.deb https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb &amp;&amp; sudo apt install -y --reinstall /tmp/opentars.deb</pre><button type="button" data-copy="cmd">Copy</button></div>
-          <p><a class="btn" href="https://github.com/project-opentars/OpenTARS/releases/latest/download/opentars_all.deb">Download opentars_all.deb</a></p>
+          <div class="cmd"><pre id="cmd" tabindex="0">wget -O /tmp/opentars.deb https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb &amp;&amp; sudo apt install -y --reinstall /tmp/opentars.deb</pre><button type="button" data-copy="cmd">Copy</button></div>
+          <p><a class="btn" href="https://github.com/MastLLM/OpenTARS/releases/latest/download/opentars_all.deb">Download opentars_all.deb</a></p>
           <dl class="pacote">
             <div><dt>Version</dt><dd>5.3 Tesseract</dd></div>
             <div><dt>Size</dt><dd>1.4 MB</dd></div>
@@ -305,7 +305,7 @@
         </div>
         <div>
           <h3>Fedora, Arch, openSUSE</h3>
-          <div class="cmd"><pre id="i-lin" tabindex="0">curl -fsSL https://raw.githubusercontent.com/project-opentars/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash</pre><button type="button" data-copy="i-lin">Copy</button></div>
+          <div class="cmd"><pre id="i-lin" tabindex="0">curl -fsSL https://raw.githubusercontent.com/MastLLM/OpenTARS/main/app/empacotamento/linux/instalar.sh | bash</pre><button type="button" data-copy="i-lin">Copy</button></div>
           <p>Only your package manager asks for your password.</p>
         </div>
       </div>
@@ -316,7 +316,7 @@
       <details>
         <summary>Remove it, or go back to 5.2</summary>
         <p>To remove openTARS on any system, run <code>opentars --desinstalar</code>.</p>
-        <p>If 5.3 does not run on your computer, <a href="https://github.com/project-opentars/OpenTARS/releases/download/5.2/opentars_all.deb">5.2 Ranger</a> is still available. It uses Ollama as its engine.</p>
+        <p>If 5.3 does not run on your computer, <a href="https://github.com/MastLLM/OpenTARS/releases/download/5.2/opentars_all.deb">5.2 Ranger</a> is still available. It uses Ollama as its engine.</p>
       </details>
     </div>
   </section>
@@ -332,10 +332,10 @@
       <a href="changelog.html">Changelog</a>
       <a href="privacy.html">Privacy &amp; security</a>
       <a href="verify.html">Verify your download</a>
-      <a href="https://github.com/project-opentars/OpenTARS">GitHub</a>
+      <a href="https://github.com/MastLLM/OpenTARS">GitHub</a>
       <a href="https://huggingface.co/OpenTARS">Hugging Face</a>
       <a href="https://www.instagram.com/open.tars/">Instagram</a>
-      <a href="https://github.com/project-opentars/OpenTARS/blob/main/LICENSE">MIT License</a>
+      <a href="https://github.com/MastLLM/OpenTARS/blob/main/LICENSE">MIT License</a>
     </nav>
   </div>
 </footer>
