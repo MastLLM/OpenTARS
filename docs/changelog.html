@@ -37,6 +37,13 @@
     <p class="lede quiet">What changed in each version of openTARS. Updates install from the same package: your chats and settings are kept.</p>
 
     <article>
+      <h2>openTARS 5.3 Tesseract, update of November 22</h2>
+      <ul>
+        <li><b>openTARS is now made by MastLLM.</b> Same app, same team, new home: the code lives at <a href="https://github.com/MastLLM/OpenTARS">github.com/MastLLM/OpenTARS</a>, the models at <a href="https://huggingface.co/Mast-LLM">huggingface.co/Mast-LLM</a>, and the site at mastllm.github.io/OpenTARS. Updates and model downloads now go straight to the new addresses; the old links keep redirecting.</li>
+      </ul>
+    </article>
+
+    <article>
       <h2>openTARS 5.3 Tesseract, update of November 15</h2>
       <ul>
         <li><b>Native apps for Windows and macOS.</b> openTARS now ships as a ready-to-run app: opentars-setup.exe on Windows and a signed .dmg on macOS, for Apple Silicon and Intel. Python, Qt and the llama.cpp engine are inside, so installing no longer downloads and builds anything.</li>
@@ -102,7 +109,7 @@
       <p class="quando">October 24, 2026 · updated November 9</p>
       <ul>
         <li><strong>Gargantua 2 Lite retrained (November 9):</strong> <code>ProjectOpenTARS/Gargantua-2:lite</code> was trained again. In our tests it handles text actions 67 of 76 times (before: 60), invents fewer facts when run inside openTARS (9 errors in 48 questions, before 17), and got <strong>96 of 100</strong> everyday tasks right on the processor alone (before: 93). Run <code>ollama pull ProjectOpenTARS/Gargantua-2:lite</code> to get it.</li>
-        <li><strong>Gargantua 2 retrained (November 9):</strong> <code>ProjectOpenTARS/Gargantua-2:latest</code> (the 2B) was trained again and handles text actions 76 of 76 times in our test (before: 72 of 76), says it does not know about people and things that do not exist 16 of 16 times inside the app, and corrects a false premise more often. Run <code>ollama pull ProjectOpenTARS/Gargantua-2</code> to get it. The new files are also on <a href="https://huggingface.co/OpenTARS/Gargantua-2">Hugging Face</a>.</li>
+        <li><strong>Gargantua 2 retrained (November 9):</strong> <code>ProjectOpenTARS/Gargantua-2:latest</code> (the 2B) was trained again and handles text actions 76 of 76 times in our test (before: 72 of 76), says it does not know about people and things that do not exist 16 of 16 times inside the app, and corrects a false premise more often. Run <code>ollama pull ProjectOpenTARS/Gargantua-2</code> to get it. The new files are also on <a href="https://huggingface.co/Mast-LLM/Gargantua-2">Hugging Face</a>.</li>
         <li><strong>Fix (November 4):</strong> a local Gargantua with a slash in its name is treated as Gargantua again, so it no longer turns on reasoning and comes back with no text. The model stays loaded while the window is open and returns to the normal timeout in the tray. A greeting no longer triggers the web check.</li>
         <li><strong>Fix (November 2):</strong> “Show in folder” in the file search now opens the file manager with the file selected, instead of only opening the folder.</li>
         <li><strong>Fix (November 1):</strong> the portable test (<code>opentars --prova</code>) runs without the desktop: before, it could open apps and type into the open windows of the machine where it ran. Use it only after this update.</li>
@@ -230,7 +237,7 @@
       <a href="privacy.html">Privacy &amp; security</a>
       <a href="verify.html">Verify your download</a>
       <a href="https://github.com/MastLLM/OpenTARS">GitHub</a>
-      <a href="https://huggingface.co/OpenTARS">Hugging Face</a>
+      <a href="https://huggingface.co/Mast-LLM">Hugging Face</a>
       <a href="https://ollama.com/ProjectOpenTARS">Ollama</a>
       <a href="https://www.instagram.com/open.tars/">Instagram</a>
       <a href="https://github.com/MastLLM/OpenTARS/blob/main/LICENSE">MIT License</a>

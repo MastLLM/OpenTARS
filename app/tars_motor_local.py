@@ -4,7 +4,7 @@ Decidido pelo Enzo em 07/11: llama.cpp nos três sistemas, e a parte de visão (
 tirou o Ollama de tudo: o app não fala mais com um Ollama de verdade. Por dentro o app ainda usa o formato de pedido que era o
 do Ollama (13 chamadas, tars_motor.ROTAS): este processo responde nessas rotas e roda um `llama-server` por modelo em uso.
 
-- Modelos Gargantua baixados do Hugging Face (OpenTARS/...) com SHA-256 conferido, na pasta de dados do app.
+- Modelos Gargantua baixados do Hugging Face (Mast-LLM/...) com SHA-256 conferido, na pasta de dados do app.
 - `llama-server` da Release fixa do ggml-org (VERSAO_LLAMA), conferido pelo hash: Vulkan no Linux e no Windows (com reserva em CPU
   se a máquina não tiver Vulkan ou se o Vulkan cair ao carregar), Metal no macOS. O app empacotado do Windows e do macOS já traz o
   llama-server (pasta motor-embutido/ ao lado deste arquivo): nada a baixar além do modelo.
@@ -79,8 +79,8 @@ CATALOGO = {   # a ficha que o Ollama dava para cada modelo (copiada em 07/11), 
         "mmproj": None, "capabilities": ["completion", "tools", "insert"], "family": "qwen2", "parameter_size": "7.6B", "quantization_level": "Q4_K_M",
         "parameters": _PARAMETROS_QWEN},
 }
-for _ficha in CATALOGO.values():          # os nossos ficam na organização OpenTARS do Hugging Face
-    _ficha["repo"] = "OpenTARS/" + _ficha["repo"]
+for _ficha in CATALOGO.values():          # os nossos ficam na organização Mast-LLM do Hugging Face (era OpenTARS, que redireciona)
+    _ficha["repo"] = "Mast-LLM/" + _ficha["repo"]
 _FIXOS = frozenset(CATALOGO)
 _PARAMETROS_LOJA = "top_k                          40\ntop_p                          0.95\nrepeat_penalty                 1.05\ntemperature                    0.6"
 KEEP_ALIVE_PADRAO = 300

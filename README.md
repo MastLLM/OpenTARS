@@ -115,14 +115,14 @@ All of them run on **Gemma 4**, Google's open model family that takes in images 
 
 | | Size | Runs on | In our tests |
 |---|---|---|---|
-| **[Gargantua 2.5](https://huggingface.co/OpenTARS/Gargantua-2.5)** | 5.3 GB | a graphics card, or 16 GB of RAM | the right tool 21 of 21 times, 75 of 76 text actions, 47 of 48 everyday tasks, about 1 s per tool on a graphics card |
-| **[Gargantua Lite Gen 3](https://huggingface.co/OpenTARS/Gargantua-2.5-Lite)** | 3.4 GB | any computer, on the processor alone | 75 of 76 text actions, 48 of 48 everyday tasks |
-| **[Gargantua Pro Gen 1](https://huggingface.co/OpenTARS/Gargantua-Pro)** | 7.4 GB | optional, for missions in a virtual machine | our largest model, on Gemma 4 12B |
-| **[Gargantua Code Gen 2](https://huggingface.co/OpenTARS/Gargantua-Code-Gen2)** | 4.7 GB | optional, for programming | 51 of 60 coding tasks |
-| **[Gargantua Pi Gen 1](https://huggingface.co/OpenTARS/Gargantua-Pi)** | 300 MB | small boards, in openTARS Pi | tested on an Orange Pi Zero 2W with 1 GB of RAM |
+| **[Gargantua 2.5](https://huggingface.co/Mast-LLM/Gargantua-2.5)** | 5.3 GB | a graphics card, or 16 GB of RAM | the right tool 21 of 21 times, 75 of 76 text actions, 47 of 48 everyday tasks, about 1 s per tool on a graphics card |
+| **[Gargantua Lite Gen 3](https://huggingface.co/Mast-LLM/Gargantua-2.5-Lite)** | 3.4 GB | any computer, on the processor alone | 75 of 76 text actions, 48 of 48 everyday tasks |
+| **[Gargantua Pro Gen 1](https://huggingface.co/Mast-LLM/Gargantua-Pro)** | 7.4 GB | optional, for missions in a virtual machine | our largest model, on Gemma 4 12B |
+| **[Gargantua Code Gen 2](https://huggingface.co/Mast-LLM/Gargantua-Code-Gen2)** | 4.7 GB | optional, for programming | 51 of 60 coding tasks |
+| **[Gargantua Pi Gen 1](https://huggingface.co/Mast-LLM/Gargantua-Pi)** | 300 MB | small boards, in openTARS Pi | tested on an Orange Pi Zero 2W with 1 GB of RAM |
 | **Murph** | 4 MB | always on, no model to load | reads each request in about 0.2 ms and picks who answers |
 
-The tests are ours and run with the real app, on November 13, 2026; `opentars --prova` runs the everyday tasks on your computer. The models run on the llama.cpp engine that openTARS installs, and are also on [Hugging Face](https://huggingface.co/OpenTARS) and [ollama.com](https://ollama.com/ProjectOpenTARS).
+The tests are ours and run with the real app, on November 13, 2026; `opentars --prova` runs the everyday tasks on your computer. The models run on the llama.cpp engine that openTARS installs, and are also on [Hugging Face](https://huggingface.co/Mast-LLM) and [ollama.com](https://ollama.com/ProjectOpenTARS).
 
 ## How it works
 
