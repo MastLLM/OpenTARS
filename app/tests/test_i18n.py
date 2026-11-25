@@ -26,7 +26,7 @@ CAMPOS = re.compile(r"\{(\w+)\}")
 base = json.loads((PASTA / "pt_BR.json").read_text(encoding="utf-8"))
 arquivos = sorted(PASTA.glob("*.json"))
 # 4.0: só português e inglês
-assert {a.stem for a in arquivos} == {"pt_BR", "en"}, arquivos
+assert {"pt_BR", "en", "tr"} <= {a.stem for a in arquivos}, arquivos
 for arquivo in arquivos:
     cat = json.loads(arquivo.read_text(encoding="utf-8"))
     assert set(cat) == set(base), (arquivo.name, sorted(set(base) ^ set(cat)))
@@ -70,6 +70,9 @@ assert i18n.t("chave.que.nao.existe") == "chave.que.nao.existe"
 assert i18n.t("msg.carregado", modelo="x") == "{modelo} carregado em {segundos}s".replace("{modelo}", "x") or True
 assert "x" in i18n.t("msg.carregado", modelo="x", segundos="1")
 
+assert i18n.definir_idioma("tr") == "tr"
+assert i18n.t("gui.enviar") == "Gönder"
+assert json.loads(Path(os.environ["TARS_ARQUIVO_CONFIG"]).read_text())["idioma"] == "tr"
 assert i18n.definir_idioma("en") == "en"
 assert i18n.t("gui.enviar") == "Send"
 assert json.loads(Path(os.environ["TARS_ARQUIVO_CONFIG"]).read_text())["idioma"] == "en"
@@ -77,7 +80,7 @@ assert i18n.definir_idioma("klingon") is None and i18n.idioma_atual() == "en"
 print("OK: trocar de idioma muda os textos e fica salvo na configuração")
 
 for pedido, esperado in (("pt_PT.UTF-8", "pt_BR"), ("es_MX", None), ("de_AT.UTF-8", None), ("fr-CA", None),
-                         ("en_GB", "en"), ("zh_CN.UTF-8", None), ("C", None), ("", None)):
+                         ("en_GB", "en"), ("tr_TR.UTF-8", "tr"), ("zh_CN.UTF-8", None), ("C", None), ("", None)):
     assert i18n.melhor_idioma(pedido) == esperado, (pedido, i18n.melhor_idioma(pedido))
 print("OK: idioma do sistema vira o arquivo mais próximo (pt_PT -> pt_BR, en_GB -> en; espanhol não existe mais)")
 
@@ -98,7 +101,7 @@ print("OK: sem escolha salva, segue o idioma do sistema (e inglês se não houve
 # ------------------------------------------------------------------
 # A IA responde no idioma escolhido
 # ------------------------------------------------------------------
-for codigo, trecho in (("pt_BR", "português do Brasil"), ("en", "reply in English")):
+for codigo, trecho in (("pt_BR", "português do Brasil"), ("en", "reply in English"), ("tr", "reply in Turkish")):
     i18n.definir_idioma(codigo, salvar=False)
     prompt = tars.montar_system_prompt()
     assert trecho in prompt and prompt.startswith(tars.SYSTEM_PROMPT.split("{sair}")[0]), codigo

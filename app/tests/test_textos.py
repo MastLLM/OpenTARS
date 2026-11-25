@@ -16,13 +16,16 @@ from _util import RAIZ
 RAIZ = Path(RAIZ)
 pt = json.loads((RAIZ / "idiomas" / "pt_BR.json").read_text(encoding="utf-8"))
 en = json.loads((RAIZ / "idiomas" / "en.json").read_text(encoding="utf-8"))
+tr = json.loads((RAIZ / "idiomas" / "tr.json").read_text(encoding="utf-8"))
 campos = lambda v: sorted(re.findall(r"\{(\w+)", v)) if isinstance(v, str) else None  # noqa: E731
 
 assert set(pt) == set(en), f"chaves só num idioma: {sorted(set(pt) ^ set(en))}"
 assert not [k for k in pt if type(pt[k]) is not type(en[k])], "tipos diferentes entre idiomas"
 diferentes = [k for k in pt if campos(pt[k]) != campos(en[k])]
 assert not diferentes, f"{{campos}} diferentes entre pt_BR e en: {diferentes}"
-print(f"OK: pt_BR e en com as mesmas {len(pt)} chaves, tipos e campos")
+assert set(tr) == set(en), "chaves diferentes no turco"
+assert all(type(tr[k]) is type(en[k]) and campos(tr[k]) == campos(en[k]) for k in en), "tipos ou campos diferentes no turco"
+print(f"OK: pt_BR, en e tr com as mesmas {len(pt)} chaves, tipos e campos")
 
 fontes_py = [p for p in RAIZ.rglob("*.py") if not set(p.relative_to(RAIZ).parts[:1]) & {"build", "dist", "tests", "gargantua"}]
 usadas = {}
@@ -61,7 +64,7 @@ else:
     plex = [QRawFont(str(f), 15) for f in sorted((RAIZ / "tars_qt" / "fontes").glob("*.ttf"))]
     assert plex, "fontes da IBM Plex não encontradas"
     fora = lambda texto: {c for c in texto if ord(c) > 0x7F and not any(f.supportsCharacter(ord(c)) for f in plex)}  # noqa: E731
-    ruins = {f"{k}@{nome}": fora(v) for nome, d in (("pt_BR", pt), ("en", en)) for k, v in d.items()
+    ruins = {f"{k}@{nome}": fora(v) for nome, d in (("pt_BR", pt), ("en", en), ("tr", tr)) for k, v in d.items()
              if isinstance(v, str) and fora(v)}
     assert not ruins, f"textos com glifo fora da IBM Plex (derruba a janela em algumas máquinas): {ruins}"
     from tars_qt import tema
