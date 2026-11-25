@@ -13,7 +13,7 @@ Local by default, free and open source, with an AI trained just for it.
 [![Official AI: Gargantua 2.5](https://img.shields.io/badge/official%20AI-Gargantua%202.5-5FD97A?style=flat-square)](#gargantua-an-ai-made-for-this)
 [![MIT License](https://img.shields.io/badge/license-MIT-5FD97A?style=flat-square)](LICENSE)
 [![Linux, Windows, macOS](https://img.shields.io/badge/runs%20on-Linux%20%C2%B7%20Windows%20%C2%B7%20macOS-1A2446?style=flat-square)](#where-it-runs)
-[![Languages](https://img.shields.io/badge/languages-EN%20%C2%B7%20PT--BR-1A2446?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-EN%20%C2%B7%20PT--BR%20%C2%B7%20TR-1A2446?style=flat-square)](#languages)
 [![Instagram @open.tars](https://img.shields.io/badge/Instagram-@open.tars-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://www.instagram.com/open.tars/)
 
 [Install](#install) · [What it does](#what-it-does) · [Gargantua](#gargantua-an-ai-made-for-this) · [How it works](#how-it-works) · [Safety](#your-computer-your-rules) · [Terminal](#terminal) · [New in 5.3](#new-in-53-tesseract) · [Website](https://mastllm.github.io/OpenTARS/)
@@ -191,7 +191,7 @@ More in the [privacy page](https://mastllm.github.io/OpenTARS/privacy.html).
 
 ## Languages
 
-The window, the terminal, the installer and the menu speak **English and Portuguese**. Switch in the window or with `opentars --idioma pt_BR`. To add your language, copy `app/idiomas/en.json`, translate the values and send a pull request: it shows up in the menu by itself.
+The window, the terminal, the installer and the menu speak **English, Portuguese and Turkish**. Switch in the window or with `opentars --idioma tr`. Voice support is available in English and Portuguese. To add your language, copy `app/idiomas/en.json`, translate the values and send a pull request: it shows up in the menu by itself.
 
 ## New in 5.3 Tesseract
 
